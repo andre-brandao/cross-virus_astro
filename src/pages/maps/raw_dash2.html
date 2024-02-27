@@ -1,0 +1,796 @@
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1,user-scalable=no" />
+
+    <title>Crossvirus-IA: Painel de Análise</title>
+
+    <!-- Load the Chart.js library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.4.0/Chart.min.js"></script>
+
+    <link rel="stylesheet" href="https://js.arcgis.com/4.19/esri/themes/light/main.css" />
+
+    <style>
+      html,
+      body {
+        padding: 0;
+        margin: 0;
+        height: 100%;
+        width: 100%;
+        overflow: hidden;
+      }
+
+      #viewDiv {
+        position: absolute;
+        left: 0;
+        width: 60%;
+        bottom: 0;
+        height: 100%;
+      }
+    
+
+      #panel {
+        position: absolute;
+        right: 0;
+        height: 100%;
+        width: 40%;
+        overflow: scroll;
+      }
+
+      #num-casos {
+        color: #ed5050;
+        font-size: 36pt;
+        font-weight: bolder;
+        line-height: 0.8;
+      }
+      
+	   #floating-panel {
+        position: absolute;
+        bottom: 10px;
+        left: 5%;
+        z-index: 5;
+        background-color: #fff;
+        padding: 10px;
+        text-align: center;
+        font-family: "Roboto", "sans-serif";
+        padding-left: 10px;
+      }
+
+      #floating-panel {
+        margin-left: -52px;
+      }
+	  
+	  
+    </style>
+
+    <script src="https://js.arcgis.com/4.19/"></script>
+
+    <script>
+      require([
+        "esri/views/MapView",
+        "esri/WebMap",
+        "esri/widgets/Legend",
+        "esri/widgets/Expand",
+        "esri/widgets/Bookmarks",
+        "esri/core/lang",
+        "esri/core/promiseUtils",
+        "esri/core/watchUtils"
+      ], function(MapView, WebMap, Legend, Expand, Bookmarks, lang, promiseUtils, watchUtils) {
+        // declare chart variables to update as the under interacts with the sample
+
+        let yearChart, ageChart, dispositionChart, genderChart, raceChart, totalcasos, avgAge, avgOpenTime, raioC, rcasos;
+
+        // load a web map containing homicide statistics
+        // from a portal item
+
+        const webmap = new WebMap({
+          portalItem: {
+            id: "4adf2c35eede4f8b8959e63991fb8f59"  //"20707169c14c40f680518710e7f58723"   
+          }
+        });
+
+        const view = new MapView({
+          map: webmap,
+          container: "viewDiv",
+          highlightOptions: {
+            color: "red",
+            haloOpacity: 0.65,
+            fillOpacity: 0.45
+          }
+        });
+
+        // Add UI elements to the view
+
+        // Displays instructions to the user for understanding the sample
+        // And places them in an Expand widget instance
+
+        const titleContent = document.createElement("div");
+        titleContent.style.padding = "15px";
+        titleContent.style.backgroundColor = "white";
+        titleContent.style.width = "500px";
+        titleContent.innerHTML = [
+          "<div id='title' class='esri-widget'>",
+          "<br><strong>COVID em João Monlevade-MG: abril/2020 a maio/2021</strong>",
+          "<br><span id='num-casos'>0</span> casos notificados em um raio de <span id='lname'>1</span> km do ponto clicado.",
+          "</div>"
+        ].join(" ");
+
+        const titleExpand = new Expand({
+          expandIconClass: "esri-icon-dashboard",
+          expandTooltip: "Summary stats",
+          view: view,
+          content: titleContent,
+          expanded: view.widthBreakpoint !== "xsmall"
+        });
+        view.ui.add(titleExpand, "top-right");
+
+        const legendExpand = new Expand({
+          view: view,
+          content: new Legend({
+            view: view
+          }),
+          expanded: view.widthBreakpoint !== "xsmall"
+        });
+       // view.ui.add(legendExpand, "bottom-left");
+
+        view.watch("widthBreakpoint", function(newValue) {
+          titleExpand.expanded = newValue !== "xsmall";
+          legendExpand.expanded = newValue !== "xsmall";
+        });
+//----------------------------------------------------------------
+        const bookmarksWidget = new Bookmarks({
+          view: view
+        });
+
+         const bookmarksExpand = new Expand({
+           view: view,
+           content: bookmarksWidget
+         });
+        // view.ui.add(bookmarksExpand, "top-right");
+
+         bookmarksWidget.on("select-bookmark", function(event) {
+         bookmarksExpand.expanded = false;
+         });
+
+        // Displays instructions to the user for understanding the sample
+        // And places them in an Expand widget instance
+        const sampleInstructions = document.createElement("div");
+        sampleInstructions.style.padding = "10px";
+        sampleInstructions.style.backgroundColor = "white";
+        sampleInstructions.style.width = "300px";
+        sampleInstructions.innerHTML = [
+          "<b>Clique</b> sobre os dados para ver as estatísticas",
+          "contidas a um raio (CONFIGURADO) do ponto clicado."
+        ].join(" ");
+
+        const instructionsExpand = new Expand({
+          expandIconClass: "esri-icon-question",
+          expandTooltip: "How to use this sample",
+          view: view,
+          content: sampleInstructions
+        });
+        view.ui.add(instructionsExpand, "top-right");
+
+        let highlightHandle = null;
+
+        /**
+         * Create charts and start querying the layer view when
+         * the view is ready and data begins to draw in the view
+         */
+        view.when().then(function() {
+          // Create the charts when the view is ready
+          createCharts();
+
+          const layer = webmap.layers.getItemAt(0);
+          layer.outFields = [ "febre", "comorbidad", "teste", "confirmado", "idade", "mes_ano" ];
+
+          view.whenLayerView(layer).then(function(layerView) {
+            watchUtils.whenFalseOnce(layerView, "updating", function(val) {
+              // Query layer view statistics as the user clicks
+              // or drags the pointer across the view.
+              view.on(["click", "drag"], function(event) {
+                // disables navigation by pointer drag
+                event.stopPropagation();
+                queryStatsOnDrag(layerView, event)
+                  .then(updateCharts)
+                  .catch(function(error){
+                    if (error.name !== "AbortError"){
+                      console.error(error);
+                    }
+                  });
+              });
+            });
+          });
+        });
+
+        /**
+         * Queries statistics against the layer view at the given screen location
+         */
+        var queryStatsOnDrag = promiseUtils.debounce(function (layerView, event) {
+          // create a query object for the highlight and the statistics query
+
+          const query = layerView.layer.createQuery();
+          query.geometry = view.toMap(event); // converts the screen point to a map point
+         
+
+   //  *****************  CONFIGURA RAIO
+  		//  var raioC = document.getElementById("lname").value;
+		 
+		
+		  query.distance = 1; // queries all features within raioC KM of the point
+          query.units = "kilometers";
+      
+	  
+          const statsQuery = query.clone();
+
+      
+          // Create the statistic definitions for querying stats from the layer view
+          // the `onStatisticField` property can reference a field name or a SQL expression
+          // `outStatisticFieldName` is the name of the statistic you will reference in the result
+          // `statisticType` can be sum, avg, min, max, count, stddev
+         
+		 const statDefinitions = [
+           
+		   // Age of crime since it was reported in years
+
+            //{
+        //      onStatisticField:  dataDownloadDate,
+          //    outStatisticFieldName: "avg_open_time_years",
+        //      statisticType: "avg"
+      //      },
+
+            // total de CASOS
+
+            {
+              onStatisticField: "1",
+              outStatisticFieldName: "totalcasos",
+              statisticType: "count"
+            },
+
+            // total POR MES-ANO
+            //
+            // Since separate fields don't exist for each year, we can use
+            // an expression to return a 1 or a 0 for each year and sum up the
+            // results to get the total.
+
+            {
+              onStatisticField: "CASE WHEN mes_ano = 'abr-20' THEN 1 ELSE 0 END",
+              outStatisticFieldName: "abr_2020",
+              statisticType: "sum"
+            },
+            {
+              onStatisticField: "CASE WHEN mes_ano = 'mai-20' THEN 1 ELSE 0 END",
+              outStatisticFieldName: "mai_2020",
+              statisticType: "sum"
+            },
+            {
+              onStatisticField: "CASE WHEN mes_ano = 'jun-20' THEN 1 ELSE 0 END",
+              outStatisticFieldName: "jun_2020",
+              statisticType: "sum"
+            },
+            {
+              onStatisticField: "CASE WHEN mes_ano = 'jul-20' THEN 1 ELSE 0 END",
+              outStatisticFieldName: "jul_2020",
+              statisticType: "sum"
+            },
+            {
+              onStatisticField: "CASE WHEN mes_ano = 'ago-20' THEN 1 ELSE 0 END",
+              outStatisticFieldName: "ago_2020",
+              statisticType: "sum"
+            },
+            {
+              onStatisticField: "CASE WHEN mes_ano = 'set-20' THEN 1 ELSE 0 END",
+              outStatisticFieldName: "set_2020",
+              statisticType: "sum"
+            },
+            {
+              onStatisticField: "CASE WHEN mes_ano = 'out-20' THEN 1 ELSE 0 END",
+              outStatisticFieldName: "out_2020",
+              statisticType: "sum"
+            },
+            {
+              onStatisticField: "CASE WHEN mes_ano = 'nov-20' THEN 1 ELSE 0 END",
+              outStatisticFieldName: "nov_2020",
+              statisticType: "sum"
+            },
+            {
+              onStatisticField: "CASE WHEN mes_ano = 'dez-20' THEN 1 ELSE 0 END",
+              outStatisticFieldName: "dez_2020",
+              statisticType: "sum"
+            },
+            {
+              onStatisticField: "CASE WHEN mes_ano = 'jan-21' THEN 1 ELSE 0 END",
+              outStatisticFieldName: "jan_2021",
+              statisticType: "sum"
+            },
+			{
+              onStatisticField: "CASE WHEN mes_ano = 'fev-21' THEN 1 ELSE 0 END",
+              outStatisticFieldName: "fev_2021",
+              statisticType: "sum"
+            },
+			{
+              onStatisticField: "CASE WHEN mes_ano = 'mar-21' THEN 1 ELSE 0 END",
+              outStatisticFieldName: "mar_2021",
+              statisticType: "sum"
+            },
+			{
+              onStatisticField: "CASE WHEN mes_ano = 'abr-21' THEN 1 ELSE 0 END",
+              outStatisticFieldName: "abr_2021",
+              statisticType: "sum"
+            },
+			{
+              onStatisticField: "CASE WHEN mes_ano = 'mai-21' THEN 1 ELSE 0 END",
+              outStatisticFieldName: "mai_2021",
+              statisticType: "sum"
+            },
+			
+
+            // FEBRE
+            //
+            // Since this is a string field, we can use a similar technique to sum
+            // the total of each 
+			
+            {
+              onStatisticField: "CASE WHEN febre = 'SIM' THEN 1 ELSE 0 END",
+              outStatisticFieldName: "num_closed_arrest",
+              statisticType: "sum"
+            },
+            {
+              onStatisticField: "CASE WHEN febre = 'NAO' THEN 1 ELSE 0 END",
+              outStatisticFieldName: "num_open",
+              statisticType: "sum"
+            },
+
+            // average IDADE
+			
+            // values without a where clause. Do use a where clause, we could execute
+            // a separate query
+
+         //   {
+      //        onStatisticField: "idade = 'idosos (mais de 60 Anos)' OR idade = 'Idosos (mais de 60 Anos)'  THEN 0 ELSE 1 END",
+        //      outStatisticFieldName: "avg_age",
+          //    statisticType: "sum"
+        //    },
+
+            // victim age brackets
+
+            {
+              onStatisticField: "CASE WHEN idade = '< 1 Ano' THEN 1 ELSE 0 END",
+              outStatisticFieldName: "age_1_under",
+              statisticType: "sum"
+            },
+            {
+              onStatisticField: "CASE WHEN idade = '1 a 4 Anos' OR idade = '5 a 9 Anos' OR idade = '10 a 14 anos' THEN 1 ELSE 0 END",
+              outStatisticFieldName: "age_1_14",
+              statisticType: "sum"
+            },
+            {
+              onStatisticField: "CASE WHEN idade= '15 a 19 Anos' OR idade = '20 a 29 Anos' THEN 1 ELSE 0 END",
+              outStatisticFieldName: "age_15_29",
+              statisticType: "sum"
+            },
+            {
+              onStatisticField: "CASE WHEN idade = '30 a 39 Anos' THEN 1 ELSE 0 END",
+              outStatisticFieldName: "age_30_39",
+              statisticType: "sum"
+            },
+            {
+              onStatisticField: "CASE WHEN idade LIKE '%40%' THEN 1 ELSE 0 END",
+              outStatisticFieldName: "age_40_59",
+              statisticType: "sum"
+            },
+            {
+              onStatisticField: "CASE WHEN idade = 'Idosos (mais de 60 Anos)' THEN 1 ELSE 0 END",
+              outStatisticFieldName: "age_60_over",
+              statisticType: "sum"
+            },
+
+            // COMORBIDADE DO INFECTADO
+
+            {
+              onStatisticField: "CASE WHEN comorbidad = 'NAO' THEN 1 ELSE 0 END",
+              outStatisticFieldName: "num_males",
+              statisticType: "sum"
+            },
+            {
+              onStatisticField: "CASE WHEN comorbidad = 'SIM' THEN 1 ELSE 0 END",
+              outStatisticFieldName: "num_females",
+              statisticType: "sum"
+            },
+           
+
+            // TESTE APLICADO
+
+            {
+              onStatisticField: "CASE WHEN teste LIKE '%ANTICORPO%' THEN 1 ELSE 0 END",
+              outStatisticFieldName: "num_anticorpo",
+              statisticType: "sum"
+            },
+            {
+              onStatisticField: "CASE WHEN teste LIKE '%ANTIGENO%' THEN 1 ELSE 0 END",
+              outStatisticFieldName: "num_antigeno",
+              statisticType: "sum"
+            },
+            
+			{
+              onStatisticField: "CASE WHEN teste LIKE '%RT-PCR%' THEN 1 ELSE 0 END",
+              outStatisticFieldName: "num_pcr",
+              statisticType: "sum"
+            }
+            
+          ];
+
+          // add the stat definitions to the the statistics query object cloned earlier
+          statsQuery.outStatistics = statDefinitions;
+
+          // execute the query for all features in the layer view
+          
+		  const allStatsResponse = layerView.queryFeatures(statsQuery).then(
+          
+		  function(response) {
+              const stats = response.features[0].attributes;
+              return stats;
+            },
+            function(e) {
+              console.error(e);
+            }
+          );
+
+          const openStatsQuery = statsQuery.clone();
+          
+		  openStatsQuery.where = "confirmado = 'OBITO'";
+
+          // execute the query for only unsolved homicides in the layer view
+          const unsolvedStatsResponse = layerView.queryFeatures(openStatsQuery).then(
+            function(response) {
+              const stats = response.features[0].attributes;
+              return stats;
+            },
+            function(e) {
+              console.error(e);
+            }
+          );
+
+          // highlight all features within the query distance
+          layerView.queryObjectIds(query).then(function(ids) {
+            if (highlightHandle) {
+              highlightHandle.remove();
+              highlightHandle = null;
+            }
+            highlightHandle = layerView.highlight(ids);
+          });
+
+          // Return the promises that will resolve to each set of statistics
+          return promiseUtils.eachAlways([allStatsResponse, unsolvedStatsResponse]);
+        });
+
+        /**
+         * Updates the charts with the data returned from the statistic queries.
+         */
+        function updateCharts(responses) {
+          const allStats = responses[0].value;
+          const unsolvedStats = responses[1].value;
+
+          const yearChartStats = {
+            solved: [
+              allStats.abr_2020 - unsolvedStats.abr_2020,
+              allStats.mai_2020 - unsolvedStats.mai_2020,
+              allStats.jun_2020 - unsolvedStats.jun_2020,
+              allStats.jul_2020 - unsolvedStats.jul_2020,
+              allStats.ago_2020 - unsolvedStats.ago_2020,
+              allStats.set_2020 - unsolvedStats.set_2020,
+              allStats.out_2020 - unsolvedStats.out_2020,
+              allStats.nov_2020 - unsolvedStats.nov_2020,
+              allStats.dez_2020 - unsolvedStats.dez_2020,
+              allStats.jan_2021 - unsolvedStats.jan_2021,
+			  allStats.fev_2021 - unsolvedStats.fev_2021,
+              allStats.mar_2021 - unsolvedStats.mar_2021,
+              allStats.abr_2021 - unsolvedStats.abr_2021,
+			  allStats.mai_2021 - unsolvedStats.mai_2021
+			  
+            ],
+            unsolved: [
+              unsolvedStats.abr_2020,
+              unsolvedStats.mai_2020,
+              unsolvedStats.jun_2020,
+              unsolvedStats.jul_2020,
+              unsolvedStats.ago_2020,
+              unsolvedStats.set_2020,
+              unsolvedStats.out_2020,
+              unsolvedStats.nov_2020,
+              unsolvedStats.dez_2020,
+              unsolvedStats.jan_2021,
+			  unsolvedStats.fev_2021,
+              unsolvedStats.mar_2021,
+              unsolvedStats.abr_2021,
+			  unsolvedStats.mai_2021
+			  
+            ]
+          };
+          updateChart(yearChart, yearChartStats);
+
+          const ageChartStats = {
+            solved: [
+              allStats.age_60_over - unsolvedStats.age_60_over,
+              allStats.age_40_59 - unsolvedStats.age_40_59,
+              allStats.age_30_39 - unsolvedStats.age_30_39,
+              allStats.age_15_29 - unsolvedStats.age_15_29,
+              allStats.age_1_14 - unsolvedStats.age_1_14,
+              allStats.age_1_under - unsolvedStats.age_1_under
+            ],
+            unsolved: [   
+              unsolvedStats.age_60_over,
+              unsolvedStats.age_40_59,
+              unsolvedStats.age_30_39,
+              unsolvedStats.age_15_29,
+              unsolvedStats.age_1_14,
+              unsolvedStats.age_1_under
+            ]
+          };
+          updateChart(ageChart, ageChartStats);
+
+          const dispositionStats = [allStats.num_closed_arrest,  allStats.num_open];
+          updateChart(dispositionChart, dispositionStats);
+
+          const genderStats = [
+            allStats.num_males - unsolvedStats.num_males,
+            unsolvedStats.num_males,
+            allStats.num_females - unsolvedStats.num_females,
+            unsolvedStats.num_females
+          ];
+          updateChart(genderChart, genderStats);
+
+          const raceStats = [
+            allStats.num_anticorpo - unsolvedStats.num_anticorpo,
+            unsolvedStats.num_anticorpo,
+			allStats.num_antigeno - unsolvedStats.num_antigeno,
+            unsolvedStats.num_antigeno,
+			allStats.num_pcr - unsolvedStats.num_pcr,
+            unsolvedStats.num_pcr
+          ];
+          updateChart(raceChart, raceStats);
+
+          // Update the total numbers in the title UI element
+        //  avgAge.innerHTML = Math.round(allStats.avg_age);
+          totalcasos.innerHTML = allStats.totalcasos;
+		  rcasos.innerHTML = 1;
+		  
+         // avgOpenTime.innerHTML = unsolvedStats.avg_open_time_years.toFixed(1);
+        }
+
+        /**
+         * Updates the given chart with new data
+         */
+        function updateChart(chart, dataValues) {
+          if (chart.config.type === "doughnut") {
+            chart.data.datasets[0].data = dataValues;
+          } else {
+            chart.data.datasets[0].data = dataValues.solved;
+            chart.data.datasets[1].data = dataValues.unsolved;
+          }
+          chart.update();
+        }
+
+        /**
+         * Creates 5 charts for summarizing homicide data
+         */
+        function createCharts() {
+          totalcasos = document.getElementById("num-casos");
+          rcasos = document.getElementById("lname");
+	     // avgAge = document.getElementById("avg-age");
+        
+		 // avgOpenTime = document.getElementById("avg-open-time");
+
+          const yearCanvas = document.getElementById("year-chart");
+		  
+          yearChart = new Chart(yearCanvas.getContext("2d"), {
+            type: "bar",
+	        data: {
+              labels: ["abr-20", "mai-20", "jun-20", "jul-20", "ago-20", "set-20", "out-20", "nov-20", "dez-20", "jan-21","fev-21","mar-21","abr-21","mai-21"],
+              datasets: [
+                {
+                  label: "Casos Notificados",
+                  backgroundColor: "#149dcf",
+                  stack: "Stack 0",
+                  data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0,0,0,0,0]
+                },
+                {
+                  label: "Óbitos",
+                  backgroundColor: "#ed5050",
+                  stack: "Stack 0",
+                  data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0,0,0,0,0]
+                }
+              ]
+            },
+            options: {
+              responsive: false,
+              legend: {
+                position: "top"
+              },
+              title: {
+                display: true,
+                text: "Casos por mês/ano"
+              },
+              scales: {
+                xAxes: [
+                  {
+                    stacked: true
+                  }
+                ],
+                yAxes: [
+                  {
+                    stacked: true,
+                    ticks: {
+                      beginAtZero: true
+                    }
+                  }
+                ]
+              }
+            }
+          });
+
+          const ageCanvas = document.getElementById("age-chart");
+          ageChart = new Chart(ageCanvas.getContext("2d"), {
+            type: "horizontalBar",
+            data: {
+              labels: ["60+", "40-59", "30-39", "15-29", "1-14", "< 1"],
+              datasets: [
+                {
+                  label: "Casos notificados",
+                  backgroundColor: "#149dcf",
+                  stack: "Stack 0",
+                  data: [0, 0, 0, 0, 0, 0]
+                },
+                {
+                  label: "Óbitos",
+                  backgroundColor: "#ed5050",
+                  stack: "Stack 0",
+                  data: [0, 0, 0, 0, 0, 0]
+                }
+              ]
+            },
+            options: {
+              responsive: false,
+              legend: {
+                position: "top"
+              },
+              title: {
+                display: true,
+                text: "Casos por idade"
+              },
+              scales: {
+                xAxes: [
+                  {
+                    stacked: true,
+                    ticks: {
+                      beginAtZero: true
+                    }
+                  }
+                ],
+                yAxes: [
+                  {
+                    stacked: true
+                  }
+                ]
+              }
+            }
+          });
+
+          const dispositionCanvas = document.getElementById("disposition-chart");
+          dispositionChart = new Chart(dispositionCanvas.getContext("2d"), {
+            type: "doughnut",
+            data: {
+              labels: ["Sim", "Nao"],
+              datasets: [
+                {
+                  backgroundColor: ["#149dcf", "#ed5050"],
+                  borderColor: "rgb(255, 255, 255)",
+                  borderWidth: 1,
+                  data: [0, 0]
+                }
+              ]
+            },
+            options: {
+              responsive: false,
+              cutoutPercentage: 35,
+              legend: {
+                position: "bottom"
+              },
+              title: {
+                display: true,
+                text: "Comorbidades"
+              }
+            }
+          });
+
+          const genderCanvas = document.getElementById("gender-chart");
+          genderChart = new Chart(genderCanvas.getContext("2d"), {
+            type: "doughnut",
+            data: {
+              labels: ["Sim", "Nao"],
+              datasets: [
+                {
+                  backgroundColor: ["#149dcf", "#7c2525"],
+                  borderColor: "rgb(255, 255, 255)",
+                  borderWidth: 1,
+                  data: [0, 0]
+                }
+              ]
+            },
+            options: {
+              responsive: false,
+              cutoutPercentage: 35,
+              legend: {
+                position: "bottom"
+              },
+              title: {
+                display: true,
+                text: "Febre"
+              }
+            }
+          });
+
+          const raceCanvas = document.getElementById("race-chart");
+          raceChart = new Chart(raceCanvas.getContext("2d"), {
+            type: "doughnut",
+            data: {
+              labels: [
+                "RAPIDO ANTICORPO",
+				"RAPIDO ANTIGENO",
+				"RT-PCR"
+              ],
+              datasets: [
+                {
+                  backgroundColor: [
+                    "#149dcf",
+					"#ff0000",
+					"#fc9220"
+                    
+                  ],
+                  borderColor: "rgb(255, 255, 255)",
+                  borderWidth: 1,
+                  data: [0, 0, 0]
+                }
+              ]
+            },
+            options: {
+              responsive: false,
+                  legend: {
+                position: "bottom"
+              },
+              title: {
+                display: true,
+                text: "Teste"
+              }
+            }
+          });
+		  
+        }
+ 
+	 });
+	 
+ 	
+
+    </script>
+	
+  </head>
+
+  <body>
+    <div id="viewDiv"></div>
+	
+    <div id="panel">
+      <div style="padding: 15px;">
+        <canvas id="year-chart" height="250" width="300"></canvas>
+        <canvas id="age-chart" height="250" width="300"></canvas>
+        <canvas id="disposition-chart" width="150" height="200" style="float:left;"></canvas>
+        <canvas id="gender-chart" width="150" height="200" style="float:left;"></canvas>
+        <canvas id="race-chart" width="150" height="250" style="float:left;"></canvas>
+      </div>
+    </div>
+	
+	
+	
+	
+  </body>
+</html>

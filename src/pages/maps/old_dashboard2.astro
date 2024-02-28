@@ -70,28 +70,28 @@
 
     <script src="https://js.arcgis.com/4.19/"></script>
 
-    <script >
-      // require([
-      //   "esri/views/MapView",
-      //   "esri/WebMap",
-      //   "esri/widgets/Legend",
-      //   "esri/widgets/Expand",
-      //   "esri/widgets/Bookmarks",
-      //   "esri/core/lang",
-      //   "esri/core/promiseUtils",
-      //   "esri/core/watchUtils"
-      // ], function(MapView, WebMap, Legend, Expand, Bookmarks, lang, promiseUtils, watchUtils) {
-      import MapView from "@arcgis/core/views/MapView.js";
-      import WebMap from "@arcgis/core/WebMap.js";
-      import Legend from "@arcgis/core/widgets/Legend.js";
-      import Expand from "@arcgis/core/widgets/Expand.js";
-      import Bookmarks from "@arcgis/core/widgets/Bookmarks.js";
-      // import lang from "@arcgis/core/core/lang.js";
-      import * as promiseUtils from "@arcgis/core/core/promiseUtils.js";
-      // import watchUtils from "@arcgis/core/core/watchUtils.js";
-      import * as reactiveUtils from "@arcgis/core/core/reactiveUtils.js";
-      // declare chart variables to update as the under interacts with the sample
-      import Chart from "chart.js/auto";
+    <script is:inline>
+      require([
+        "esri/views/MapView",
+        "esri/WebMap",
+        "esri/widgets/Legend",
+        "esri/widgets/Expand",
+        "esri/widgets/Bookmarks",
+        "esri/core/lang",
+        "esri/core/promiseUtils",
+        "esri/core/watchUtils"
+      ], function(MapView, WebMap, Legend, Expand, Bookmarks, lang, promiseUtils, watchUtils) {
+      // import MapView from "@arcgis/core/views/MapView.js";
+      // import WebMap from "@arcgis/core/WebMap.js";
+      // import Legend from "@arcgis/core/widgets/Legend.js";
+      // import Expand from "@arcgis/core/widgets/Expand.js";
+      // import Bookmarks from "@arcgis/core/widgets/Bookmarks.js";
+      // // import lang from "@arcgis/core/core/lang.js";
+      // import * as promiseUtils from "@arcgis/core/core/promiseUtils.js";
+      // // import watchUtils from "@arcgis/core/core/watchUtils.js";
+      // import * as reactiveUtils from "@arcgis/core/core/reactiveUtils.js";
+      // // declare chart variables to update as the under interacts with the sample
+      // import Chart from "chart.js/auto";
 
       let yearChart,
         ageChart,
@@ -810,7 +810,7 @@
         });
       }
 
-      //  });
+       });
     </script>
   </head>
 

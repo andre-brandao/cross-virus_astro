@@ -1,5 +1,7 @@
 ---
 let youtube_link = "https://youtu.be/wwladjc24ck?feature=shared";
+
+import {wpp_link} from '../../lib/links'
 ---
 
 <div class="h-screen items-center justify-center flex">
@@ -63,7 +65,7 @@ let youtube_link = "https://youtu.be/wwladjc24ck?feature=shared";
         class="flex flex-col mb-8 lg:mb-16 space-y-4 sm:flex-row sm:justify-center sm:space-y-0 sm:space-x-4"
       >
         <a
-          href="#"
+          href={wpp_link}
           class="inline-flex justify-center items-center py-3 px-5 text-base font-medium text-center rounded-lg bg- hover:bg-gray-100 focus:ring-4 focus:ring-primary-300 dark:focus:ring-primary-900"
         >
           Entre em Contato

@@ -1,31 +1,31 @@
 ---
-import Hero from '../components/landing_page/Hero.astro';
-import Pricing from '../components/landing_page/Pricing.astro';
-import Layout from '../layouts/Layout.astro';
-import Entrevistas from '../components/landing_page/Entrevistas.astro';
+import Hero from "../components/landing_page/Hero.astro";
+import Pricing from "../components/landing_page/Pricing.astro";
+import Layout from "../layouts/Layout.astro";
+import Entrevistas from "../components/landing_page/Entrevistas.astro";
+import Patrocinadores from "../components/landing_page/Patrocinadores.astro";
 ---
 
-<Layout title='Home'>
+<Layout title="Home">
+  <div class="container h-full mx-auto flex justify-center items-center">
+    <div class="space-y-10 text-center flex flex-col items-center">
+      <Hero />
 
+      <!-- <Part1 /> -->
 
-<div class="container h-full mx-auto flex justify-center items-center">
-	<div class="space-y-10 text-center flex flex-col items-center">
-		<Hero />
-		
-		<!-- <Part1 /> -->
+      <!-- <LeftCard /> -->
 
-		<!-- <LeftCard /> -->
-		<Entrevistas/>
+      <Entrevistas />
 
-		<Pricing />
+      <Pricing />
+      <Patrocinadores />
 
-		<!-- <ContinueLinks /> -->
-		<!-- <RightCard /> -->
+      <!-- <ContinueLinks /> -->
+      <!-- <RightCard /> -->
 
-		<!-- <FeatureList /> -->
+      <!-- <FeatureList /> -->
 
-		<!-- <FreeTrial /> -->
-	</div>
-</div>
-
+      <!-- <FreeTrial /> -->
+    </div>
+  </div>
 </Layout>

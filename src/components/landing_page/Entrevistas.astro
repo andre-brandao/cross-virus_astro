@@ -6,15 +6,18 @@ let interviews = [
     description: "Entrevista com Sandro Laudares na TV Horizonte",
     data: "21/02/2024",
     link: "https://www.youtube.com/watch?si=6j6exODLGMK3GfrW&v=yjmzMlVk8SE&feature=youtu.be",
-    autor: "Sandro Laudares",
+    embeded: "https://www.youtube.com/embed/yjmzMlVk8SE",
+    autor: "Crossvirus",
   },
   {
     type: "Entrevista",
     title: "Rádio América",
     description: "Placeholder",
     data: "01/01/2024",
-    link: "#",
-    autor: "Sandro Laudares",
+    link: "https://radioamerica.arquidiocesebh.org.br/noticia/plataforma-e-desenvolvida-para-analise-e-monitoramento-de-doencas-epidemiologicas-como-a-dengue/",
+    embeded:
+      "https://radioamerica.arquidiocesebh.org.br/wp-content/uploads/2021/09/capa.site2_-5-1000x600.png",
+    autor: "Crossvirus",
   },
 ];
 ---
@@ -28,7 +31,7 @@ let interviews = [
         Entrevistas
       </h2>
       <p class="font-light text-gray-500 sm:text-xl dark:text-gray-400">
-        Lista de entrevistas realizadas com Sandro Laudares.
+        Lista de entrevistas realizadas com a equipe do Crossvirus.
       </p>
     </div>
     <div class="grid gap-8 lg:grid-cols-2">
@@ -58,6 +61,16 @@ let interviews = [
               <p class="mb-5 font-light text-gray-500 dark:text-gray-400">
                 {entrevista.description}
               </p>
+
+              <div class="flex items-center justify-center pb-3">
+                <iframe
+                  title={entrevista.title}
+                  src={entrevista.embeded}
+                  frameborder="0"
+                  allowfullscreen
+                  loading="lazy"
+                />
+              </div>
               <div class="flex justify-between items-center">
                 <div class="flex items-center space-x-4">
                   <img

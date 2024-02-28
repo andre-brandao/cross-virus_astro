@@ -1,0 +1,57 @@
+---
+interface Props {
+  maps: string[];
+}
+
+const { maps } = Astro.props;
+---
+
+<!-- <nav
+class="h-16 bg-secondary flex gap-3 justify-between"
+>
+<div class="flex gap-2">
+  <a class="bg-primary p-1" href="/">Home</a>
+  <a class="bg-primary p-1" href="/astro_maps">Mapas</a>
+</div>
+
+<div>
+  <a class="bg-primary p-1" href="/astro_maps/dashboard2">Map 2</a>
+  <a class="bg-primary p-1" href="/astro_maps/dashboard4">Map 4</a>
+</div>
+</nav> -->
+<header class="flex items-center h-[10vh] px-4 md:px-6 w-full shrink-0">
+  <a class="mr-4" href="/">
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      class="h-6 w-6"
+      ><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"></path>
+      <circle cx="12" cy="10" r="3"></circle>
+    </svg><span class="sr-only">GeoTracker</span></a
+  >
+  <nav class="flex-1 hidden items-center gap-4 lg:flex">
+    <a class="font-medium" href="/"> Home</a>
+    <a class="font-medium" href="/astro_maps"> Maps</a>
+    <a class="font-medium" href="#"> Tracking</a>
+    <!-- <a class="font-medium" href="/"> History</a> -->
+    <a class="font-medium" href="#"> Settings</a>
+  </nav>
+  <div class="flex gap-2">
+    {
+      maps.map((m) => {
+        return (
+          <a class="font-medium hover:underline" href={`/astro_maps/${m}`}>
+            {m}
+          </a>
+        );
+      })
+    }
+  </div>
+</header>

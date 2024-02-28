@@ -140,44 +140,43 @@
     <script src="https://js.arcgis.com/4.20/"></script>
 
     <script nomodule="">
-      require([
-        "esri/WebScene",
-        "esri/views/SceneView",
-        "esri/widgets/Legend",
-        "esri/layers/GraphicsLayer",
-        "esri/widgets/Sketch/SketchViewModel",
-        "esri/widgets/Slider",
-        "esri/geometry/geometryEngine",
-        "esri/Graphic",
-        "esri/widgets/Expand",
-        "esri/core/promiseUtils",
-        "esri/widgets/BasemapGallery",
-      ], function (
-        WebScene,
-        SceneView,
-        Legend,
-        GraphicsLayer,
-        SketchViewModel,
-        Slider,
-        geometryEngine,
-        Graphic,
-        Expand,
-        promiseUtils,
-        BasemapGallery
-      ) {
-        // import WebScene from "@arcgis/core/WebScene.js";
-        // import SceneView from "@arcgis/core/views/SceneView.js";
-        // import Legend from "@arcgis/core/widgets/Legend.js";
-        // import GraphicsLayer from "@arcgis/core/layers/GraphicsLayer.js";
-        // import SketchViewModel from "@arcgis/core/widgets/Sketch/SketchViewModel.js";
-        // import Slider from "@arcgis/core/widgets/Slider.js";
-        // import * as geometryEngine from "@arcgis/core/geometry/geometryEngine.js";
-        // import Graphic from "@arcgis/core/Graphic.js";
-        // import Expand from "@arcgis/core/widgets/Expand.js";
-        // import * as promiseUtils from "@arcgis/core/core/promiseUtils.js";
-        // import  BasemapGallery from "@arcgis/core/widgets/BasemapGallery.js";
-        // import Chart from "chart.js/auto";
-        // import BasemapGallery from "@arcgis/core/widgets/BasemapGallery.js";
+      // require([
+      //   "esri/WebScene",
+      //   "esri/views/SceneView",
+      //   "esri/widgets/Legend",
+      //   "esri/layers/GraphicsLayer",
+      //   "esri/widgets/Sketch/SketchViewModel",
+      //   "esri/widgets/Slider",
+      //   "esri/geometry/geometryEngine",
+      //   "esri/Graphic",
+      //   "esri/widgets/Expand",
+      //   "esri/core/promiseUtils",
+      //   "esri/widgets/BasemapGallery",
+      // ], function (
+      //   WebScene,
+      //   SceneView,
+      //   Legend,
+      //   GraphicsLayer,
+      //   SketchViewModel,
+      //   Slider,
+      //   geometryEngine,
+      //   Graphic,
+      //   Expand,
+      //   promiseUtils,
+      //   BasemapGallery
+      // ) {
+        import WebScene from "@arcgis/core/WebScene.js";
+        import SceneView from "@arcgis/core/views/SceneView.js";
+        import Legend from "@arcgis/core/widgets/Legend.js";
+        import GraphicsLayer from "@arcgis/core/layers/GraphicsLayer.js";
+        import SketchViewModel from "@arcgis/core/widgets/Sketch/SketchViewModel.js";
+        import Slider from "@arcgis/core/widgets/Slider.js";
+        import * as geometryEngine from "@arcgis/core/geometry/geometryEngine.js";
+        import Graphic from "@arcgis/core/Graphic.js";
+        import Expand from "@arcgis/core/widgets/Expand.js";
+        import * as promiseUtils from "@arcgis/core/core/promiseUtils.js";
+        import  BasemapGallery from "@arcgis/core/widgets/BasemapGallery.js";
+        import Chart from "chart.js/auto";
         // Load webscene and display it in a SceneView
         const webscene = new WebScene({
           portalItem: {
@@ -702,22 +701,12 @@
         createYearChart();
         createYearChart2();
         createMaterialChart();
-      });
+      // });
     </script>
   </head>
 
   <body>
-    <div id="red" class="block red lighten-1">
-      <nav class="pushpin-demo-nav" data-target="red">
-        <div class="nav-wrapper red">
-          <div class="container">
-            <a href="http://crossvirus.com.br" class="brand-logo"
-              >CrossvirusIA</a
-            >
-          </div>
-        </div>
-      </nav>
-    </div>
+ 
     <div id="viewDiv"></div>
     <div id="queryDiv" class="esri-widget">
       <b>Consulta por:</b><br />

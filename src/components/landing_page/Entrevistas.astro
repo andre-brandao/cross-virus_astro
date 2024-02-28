@@ -6,17 +6,31 @@ let interviews = [
     description: "Entrevista com Sandro Laudares na TV Horizonte",
     data: "21/02/2024",
     link: "https://www.youtube.com/watch?si=6j6exODLGMK3GfrW&v=yjmzMlVk8SE&feature=youtu.be",
-    embeded: "https://www.youtube.com/embed/yjmzMlVk8SE",
+    // embeded: "",
+    embeded: `<iframe
+                  src="https://www.youtube.com/embed/yjmzMlVk8SE"
+                  frameborder="0"
+                  allowfullscreen
+                  loading="lazy"
+                />`,
+    imagem: {
+      type: "iframe",
+      src: "https://www.youtube.com/embed/yjmzMlVk8SE",
+    },
     autor: "Crossvirus",
   },
   {
     type: "Entrevista",
     title: "Rádio América",
-    description: "Placeholder",
-    data: "01/01/2024",
+    description: "Entrevista de radio",
+    data: "22/02/2024",
     link: "https://radioamerica.arquidiocesebh.org.br/noticia/plataforma-e-desenvolvida-para-analise-e-monitoramento-de-doencas-epidemiologicas-como-a-dengue/",
-    embeded:
-      "https://radioamerica.arquidiocesebh.org.br/wp-content/uploads/2021/09/capa.site2_-5-1000x600.png",
+
+    embeded: `<img src='https://radioamerica.arquidiocesebh.org.br/wp-content/uploads/2023/09/logo_fundo_r%C3%A1dio_sintonizando3.png' />`,
+    imagem: {
+      type: "img",
+      src: "https://radioamerica.arquidiocesebh.org.br/wp-content/uploads/2023/09/logo_fundo_r%C3%A1dio_sintonizando3.png",
+    },
     autor: "Crossvirus",
   },
 ];
@@ -38,7 +52,7 @@ let interviews = [
       {
         interviews.map((entrevista) => {
           return (
-            <article class="p-6 bg-white rounded-lg border border-gray-200 shadow-md dark:bg-gray-800 dark:border-gray-700">
+            <article class="p-6 bg-gray-50 rounded-lg border border-gray-200 shadow-md dark:bg-gray-800 dark:border-gray-700">
               <div class="flex justify-between items-center mb-5 text-gray-500">
                 <span class="bg-primary-100 text-primary-800 text-xs font-medium inline-flex items-center px-2.5 py-0.5 rounded dark:bg-primary-200 dark:text-primary-800">
                   <svg
@@ -62,15 +76,22 @@ let interviews = [
                 {entrevista.description}
               </p>
 
-              <div class="flex items-center justify-center pb-3">
-                <iframe
-                  title={entrevista.title}
-                  src={entrevista.embeded}
-                  frameborder="0"
-                  allowfullscreen
-                  loading="lazy"
-                />
+              <div class="flex justify-center items-center h-40 overflow-hidden">
+                {entrevista.imagem.type === "iframe" ? (
+                  <iframe
+                    src={entrevista.imagem.src}
+                    frameborder="0"
+                    allowfullscreen
+                    loading="lazy"
+                  />
+                ) : (
+                  <img
+                    class="scale-150 bg-primary "
+                    src={entrevista.imagem.src}
+                  />
+                )}
               </div>
+
               <div class="flex justify-between items-center">
                 <div class="flex items-center space-x-4">
                   <img

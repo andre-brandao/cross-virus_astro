@@ -17,33 +17,9 @@ let maps = [
 
   {
     title: "João Monlevade",
-    description: "Dashboard4",
+    description: "Onibus",
     image: "/placeholder.svg",
-    link: "/astro_maps/dashboard4",
-  },
-  {
-    title: "João Monlevade",
-    description: "Dashboard4",
-    image: "/placeholder.svg",
-    link: "/astro_maps/dashboard4",
-  },
-  {
-    title: "João Monlevade",
-    description: "Dashboard4",
-    image: "/placeholder.svg",
-    link: "/astro_maps/dashboard4",
-  },
-  {
-    title: "João Monlevade",
-    description: "Dashboard4",
-    image: "/placeholder.svg",
-    link: "/astro_maps/dashboard4",
-  },
-  {
-    title: "João Monlevade",
-    description: "Dashboard4",
-    image: "/placeholder.svg",
-    link: "/astro_maps/dashboard4",
+    link: "/astro_maps/dashboard_onibus",
   },
 ];
 ---
@@ -51,15 +27,16 @@ let maps = [
 <Layout title="Maps">
   <div class="w-full py-6">
     <div class="container grid items-start mx-auto gap-6 px-4 md:px-6">
-      <div class="grid grid-cols-1 items-start gap-6 md:grid-cols-2">
+      <div class="grid grid-cols-1 items-start gap-6">
+        <!-- ^ md:grid-cols-2 -->
         <div
-          class="sticky top-3 space-y-2 max-md:bg-secondary max-md:p-3 max-md:text-white"
+          class="sticky top-3 space-y-2 bg-secondary p-3 text-white rounded-md"
         >
           <h1 class="text-3xl font-bold tracking-tighter sm:text-5xl">
             Nossos Mapas
           </h1>
           <p
-            class="text-gray-500 md:text-xl/relaxed lg:text-base/relaxe max-md:text-white"
+            class="text-gray-500 md:text-xl/relaxed lg:text-base/relaxe text-white"
           >
             Lorem ipsum dolor sit amet, consectetur adipisicing elit. Aliquam,
             quam autem dicta vel harum quasi tempore sunt animi in cum fugiat
@@ -68,7 +45,7 @@ let maps = [
           </p>
         </div>
 
-        <div class="grid grid-cols-1 gap-6">
+        <div class="grid grid-cols-3 gap-6">
           {
             maps.map((m) => {
               return (

@@ -44,33 +44,31 @@ let maps = [
 
         <div class="grid grid-cols-3 gap-6">
           {
-            maps.map((m) => {
-              return (
-                <a
-                  class="grid grid-cols-1 items-end max-md:items-center gap-6 p-3 hover:bg-primary rounded-xl"
-                  href={m.link}
-                  hover:outline-primary
-                >
-                  <div class="flex flex-col w-full items-end max-md:items-center gap-1 ">
-                    <>
-                      <h2 class="text-xl font-semibold ">{m.title}</h2>
-                      <p class="text-sm text-gray-500 dark:text-gray-400">
-                        {m.description}
-                      </p>
-                    </>
-                  </div>
-                  <div class="h-[250px] rounded-lg overflow-hidden flex justify-end max-md:justify-center">
-                    <img
-                      src={m.image}
-                      alt="Map"
-                      width="500"
-                      height="250"
-                      class="aspect-[2/1] object-cover object-right rounded-lg overflow-hidden"
-                    />
-                  </div>
-                </a>
-              );
-            })
+            maps.map((m) => (
+              <a
+                class="grid grid-cols-1 items-end max-md:items-center gap-6 p-3 hover:bg-primary rounded-xl"
+                href={m.link}
+                hover:outline-primary
+              >
+                <div class="flex flex-col w-full items-end max-md:items-center gap-1 ">
+                  <>
+                    <h2 class="text-xl font-semibold ">{m.title}</h2>
+                    <p class="text-sm text-gray-500 dark:text-gray-400">
+                      {m.description}
+                    </p>
+                  </>
+                </div>
+                <div class="h-[250px] rounded-lg overflow-hidden flex justify-end max-md:justify-center">
+                  <img
+                    src={m.image}
+                    alt="Map"
+                    width="500"
+                    height="250"
+                    class="aspect-[2/1] object-cover object-right rounded-lg overflow-hidden"
+                  />
+                </div>
+              </a>
+            ))
           }
         </div>
       </div>

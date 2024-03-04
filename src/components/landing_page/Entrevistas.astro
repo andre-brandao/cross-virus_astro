@@ -6,13 +6,6 @@ let interviews = [
     description: "Entrevista com Sandro Laudares na TV Horizonte",
     data: "21/02/2024",
     link: "https://www.youtube.com/watch?si=6j6exODLGMK3GfrW&v=yjmzMlVk8SE&feature=youtu.be",
-    // embeded: "",
-    embeded: `<iframe
-                  src="https://www.youtube.com/embed/yjmzMlVk8SE"
-                  frameborder="0"
-                  allowfullscreen
-                  loading="lazy"
-                />`,
     imagem: {
       type: "iframe",
       src: "https://www.youtube.com/embed/yjmzMlVk8SE",
@@ -25,8 +18,6 @@ let interviews = [
     description: "Entrevista de radio",
     data: "22/02/2024",
     link: "https://radioamerica.arquidiocesebh.org.br/noticia/plataforma-e-desenvolvida-para-analise-e-monitoramento-de-doencas-epidemiologicas-como-a-dengue/",
-
-    embeded: `<img src='https://radioamerica.arquidiocesebh.org.br/wp-content/uploads/2023/09/logo_fundo_r%C3%A1dio_sintonizando3.png' />`,
     imagem: {
       type: "img",
       src: "https://radioamerica.arquidiocesebh.org.br/wp-content/uploads/2023/09/logo_fundo_r%C3%A1dio_sintonizando3.png",
@@ -52,9 +43,9 @@ let interviews = [
       {
         interviews.map((entrevista) => {
           return (
-            <article class="p-6 bg-gray-50 rounded-lg border border-gray-200 shadow-md dark:bg-gray-800 dark:border-gray-700">
+            <article class="flex flex-col justify-between p-6 bg-gray-50 rounded-lg border border-gray-200 shadow-md dark:bg-gray-800 dark:border-gray-700">
               <div class="flex justify-between items-center mb-5 text-gray-500">
-                <span class="bg-primary-100 text-primary-800 text-xs font-medium inline-flex items-center px-2.5 py-0.5 rounded dark:bg-primary-200 dark:text-primary-800">
+                <span class="bg-primary text-white text-xs font-medium inline-flex items-center px-2.5 py-0.5 rounded ">
                   <svg
                     class="mr-1 w-3 h-3"
                     fill="currentColor"

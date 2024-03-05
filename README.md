@@ -44,6 +44,17 @@ Mapa 2017
 679e7bc6bab640c9afe89ece3c5a4348
 ```
 
+Scena 2016
+```
+16bac724a77149b78e98ec50a250408a
+```
+
+Mapa 2016
+```
+fd76a15edbd6471e9aa6f92da9ee67fb
+```
+
+
 -----
 
 # Astro Starter Kit: Basics

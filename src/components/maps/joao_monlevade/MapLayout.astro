@@ -1,12 +1,14 @@
 ---
-import NavBar from "../components/NavBar.astro";
+import NavBar from "../../NavBar.astro";
 
 interface Props {
   title: string;
-  maps: string[];
 }
 
-const { title, maps } = Astro.props;
+const { title } = Astro.props;
+
+let maps = ["dashboard4", "dashboard2", 'dashboard_onibus'];
+
 ---
 
 <!doctype html>

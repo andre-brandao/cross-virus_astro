@@ -1,4 +1,19 @@
-<link
+---
+import MapLayout from "../../../layouts/MapLayout.astro";
+let maps = [
+  {
+    label: "Onibus",
+    url: "/astro_maps/joao_monlevade/map_onibus",
+  },
+  {
+    label: "Covid (2021)",
+    url: "/astro_maps/joao_monlevade/scene_covid_2021",
+  },
+];
+---
+
+<MapLayout title="" maps={maps}>
+  <link
   rel="stylesheet"
   href="https://js.arcgis.com/4.19/esri/themes/light/main.css"
 />
@@ -768,3 +783,5 @@
 
   //  });
 </script>
+
+</MapLayout>

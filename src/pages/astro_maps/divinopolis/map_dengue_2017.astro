@@ -1,4 +1,19 @@
-<link
+---
+import MapLayout from "../../../layouts/MapLayout.astro";
+let maps = [
+  {
+    label: "Dengue 2016",
+    url: "/astro_maps/divinopolis/map_dengue__2016",
+  },
+  {
+    label: "Dengue 2016",
+    url: "/astro_maps/divinopolis/scene_dengue_2016",
+  },
+];
+---
+
+<MapLayout title="" maps={maps}>
+  <link
   rel="stylesheet"
   href="https://js.arcgis.com/4.19/esri/themes/light/main.css"
 />
@@ -60,7 +75,7 @@
 
   const webmap = new WebMap({
     portalItem: {
-      id: "fd76a15edbd6471e9aa6f92da9ee67fb", //"20707169c14c40f680518710e7f58723"
+      id: "679e7bc6bab640c9afe89ece3c5a4348", //"20707169c14c40f680518710e7f58723"
     },
   });
 
@@ -85,7 +100,7 @@
   titleContent.style.width = "500px";
   titleContent.innerHTML = [
     "<div id='title' class='esri-widget'>",
-    "<br><strong>COVID em Divinopolis-MG: 2016</strong>",
+    "<br><strong>COVID em Divinopolis-MG: 2017</strong>",
     "<br><span class='text-red-600 font-bold text-2xl' id='num-casos'>0</span> casos notificados em um raio de <span id='lname'>1</span> km do ponto clicado.",
     "</div>",
   ].join(" ");
@@ -436,3 +451,5 @@
 
   //  });
 </script>
+
+</MapLayout>

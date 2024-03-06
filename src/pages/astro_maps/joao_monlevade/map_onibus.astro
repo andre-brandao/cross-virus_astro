@@ -1,0 +1,210 @@
+---
+import MapLayout from "../../../layouts/MapLayout.astro";
+let maps = [
+  {
+    label: "Covid 2020-201",
+    url: "/astro_maps/joao_monlevade/map_covid_2020_2021",
+  },
+  {
+    label: "Covid (2021)",
+    url: "/astro_maps/joao_monlevade/scene_covid_2021",
+  },
+];
+---
+
+<MapLayout title="" maps={maps}>
+  <html>
+    <head>
+      <meta charset="utf-8" />
+      <meta
+        name="viewport"
+        content="initial-scale=1, maximum-scale=1,user-scalable=no"
+      />
+  
+      <title>Crossvirus-IA: Pontos de ônibus</title>
+  
+      <script
+        src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.4.0/Chart.min.js"
+      ></script>
+  
+      <link
+        rel="stylesheet"
+        href="https://js.arcgis.com/4.19/esri/themes/light/main.css"
+      />
+  
+      <style>
+        /* html,
+        body {
+          padding: 0;
+          margin: 0;
+          height: 100%;
+          width: 100%;
+          overflow: hidden;
+        } */
+  
+        #viewDiv {
+          position: absolute;
+          left: 0;
+          width: 100%;
+          bottom: 0;
+          height: 90vh;
+        }
+  
+        #floating-panel {
+          position: absolute;
+          bottom: 10px;
+          left: 5%;
+          z-index: 5;
+          background-color: #fff;
+          padding: 10px;
+          text-align: center;
+          font-family: "Roboto", "sans-serif";
+          padding-left: 10px;
+        }
+  
+        #floating-panel {
+          margin-left: -52px;
+        }
+      </style>
+  
+      <script src="https://js.arcgis.com/4.19/"></script>
+  
+      <script nomodule="">
+        // require([
+        //   "esri/views/MapView",
+        //   "esri/WebMap",
+        //   "esri/widgets/Legend",
+        //   "esri/widgets/Expand",
+        //   "esri/widgets/Bookmarks",
+        //   "esri/core/lang",
+        //   "esri/core/promiseUtils",
+        //   "esri/core/watchUtils",
+        // ], function (
+        //   MapView,
+        //   WebMap,
+        //   Legend,
+        //   Expand,
+        //   Bookmarks,
+        //   lang,
+        //   promiseUtils,
+        //   watchUtils
+        // ) {
+  
+        import MapView from "@arcgis/core/views/MapView";
+        import WebMap from "@arcgis/core/WebMap";
+        import Legend from "@arcgis/core/widgets/Legend";
+        import Expand from "@arcgis/core/widgets/Expand";
+        import Bookmarks from "@arcgis/core/widgets/Bookmarks";
+        // import lang from "@arcgis/core/core/lang";
+        // declare chart variables to update as the under interacts with the sample
+  
+        let yearChart,
+          ageChart,
+          dispositionChart,
+          genderChart,
+          raceChart,
+          totalcasos,
+          avgAge,
+          avgOpenTime,
+          raioC,
+          rcasos;
+  
+        // load a web map containing homicide statistics
+        // from a portal item
+  
+        const webmap = new WebMap({
+          portalItem: {
+            id: "bc21c1913f724a3ba0ac80c972b9d809",
+          },
+        });
+  
+        const view = new MapView({
+          map: webmap,
+          container: "viewDiv",
+          highlightOptions: {
+            color: "red",
+            haloOpacity: 0.65,
+            fillOpacity: 0.45,
+          },
+        });
+  
+        // Add UI elements to the view
+  
+        // Displays instructions to the user for understanding the sample
+        // And places them in an Expand widget instance
+  
+        const titleContent = document.createElement("div");
+        titleContent.style.padding = "15px";
+        titleContent.style.backgroundColor = "white";
+        titleContent.style.width = "500px";
+        titleContent.innerHTML = [
+          "<div id='title' class='esri-widget'>",
+          "<br><strong>COVID em João Monlevade-MG: 2020-2021</strong>",
+          "<br>TRANSPORTE PÚBLICO - Pontos de ônibus e linhas",
+          "</div>",
+        ].join(" ");
+  
+        const titleExpand = new Expand({
+          expandIconClass: "esri-icon-dashboard",
+          expandTooltip: "Summary stats",
+          view: view,
+          content: titleContent,
+          expanded: view.widthBreakpoint !== "xsmall",
+        });
+        view.ui.add(titleExpand, "top-right");
+  
+        const legendExpand = new Expand({
+          view: view,
+          content: new Legend({
+            view: view,
+          }),
+          expanded: view.widthBreakpoint !== "xsmall",
+        });
+        view.ui.add(legendExpand, "bottom-left");
+  
+        view.watch("widthBreakpoint", function (newValue) {
+          titleExpand.expanded = newValue !== "xsmall";
+          legendExpand.expanded = newValue !== "xsmall";
+        });
+        //----------------------------------------------------------------
+        const bookmarksWidget = new Bookmarks({
+          view: view,
+        });
+  
+        const bookmarksExpand = new Expand({
+          view: view,
+          content: bookmarksWidget,
+        });
+        //   view.ui.add(bookmarksExpand, "top-right");
+  
+        bookmarksWidget.on("select-bookmark", function (event) {
+          bookmarksExpand.expanded = false;
+        });
+  
+        // Displays instructions to the user for understanding the sample
+        // And places them in an Expand widget instance
+        const sampleInstructions = document.createElement("div");
+        sampleInstructions.style.padding = "10px";
+        sampleInstructions.style.backgroundColor = "white";
+        sampleInstructions.style.width = "300px";
+        sampleInstructions.innerHTML = [
+          "<b>Clique</b> sobre os dados para ver as informações",
+        ].join(" ");
+  
+        const instructionsExpand = new Expand({
+          expandIconClass: "esri-icon-question",
+          expandTooltip: "How to use this sample",
+          view: view,
+          content: sampleInstructions,
+        });
+        view.ui.add(instructionsExpand, "top-right");
+        // });
+      </script>
+    </head>
+  
+    <body>
+      <div id="viewDiv"></div>
+    </body>
+  </html>
+  
+</MapLayout>

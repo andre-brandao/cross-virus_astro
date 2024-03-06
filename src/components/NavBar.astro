@@ -1,6 +1,9 @@
 ---
 interface Props {
-  maps: string[];
+  maps: {
+    label: string;
+    url: string;
+  }[];
 }
 
 const { maps } = Astro.props;
@@ -37,21 +40,48 @@ class="h-16 bg-secondary flex gap-3 justify-between"
     </svg><span class="sr-only">GeoTracker</span></a
   >
   <nav class="flex-1 hidden items-center gap-4 lg:flex">
-    <a class="font-medium" href="/"> Home</a>
-    <a class="font-medium" href="/astro_maps"> Maps</a>
+    <a class="font-medium hover:underline" href="/"> Home</a>
+    <a class="font-medium hover:underline" href="/astro_maps"> Maps</a>
     <!-- <a class="font-medium" href="#"> Tracking</a> -->
     <!-- <a class="font-medium" href="/"> History</a> -->
     <!-- <a class="font-medium" href="#"> Settings</a> -->
   </nav>
   <div class="flex gap-2">
     {
-      maps.map((m) => {
+      maps.map((m, i) => {
         return (
-          <a class="font-medium hover:underline" href={`/astro_maps/${m}`}>
-            {m}
-          </a>
+          <>
+            <a class="font-medium hover:underline bg-300% font-bold hover:bg-gradient-to-r from-secondary via-primary to-secondary hover:text-transparent hover:bg-clip-text animate-gradient" href={m.url}>
+              {m.label}
+            </a>
+            <span hidden={maps.length - 1 == i}>- </span>
+          </>
         );
       })
     }
   </div>
 </header>
+
+
+
+<style lang="postcss">
+	/* TITLE */
+	.animate-gradient {
+		background-size: 300%;
+		-webkit-animation: animatedgradient 2s ease infinite alternate;
+		-moz-animation: animatedgradient 2s ease infinite alternate;
+		animation: animatedgradient 2s ease infinite alternate;
+	}
+
+	@keyframes animatedgradient {
+		0% {
+			background-position: 0% 50%;
+		}
+		50% {
+			background-position: 100% 50%;
+		}
+		100% {
+			background-position: 0% 50%;
+		}
+	}
+</style>

@@ -1,0 +1,577 @@
+---
+import MapLayout from "../../../layouts/MapLayout.astro";
+let maps = [
+  {
+    label: "Dengue 2017",
+    url: "/astro_maps/divinopolis/map_dengue__2017",
+  },
+  {
+    label: "Dengue 2016",
+    url: "/astro_maps/divinopolis/map_dengue_2016",
+  },
+];
+---
+
+<MapLayout title="" maps={maps}>
+  <style>
+    /* main{
+            height: 90vh;
+          }
+          */
+    /* #viewDiv {
+        position: absolute;
+        padding: 0;
+        margin: 0;
+        height: 90vh;
+        width: 100%;
+      } */
+  
+    /* .esri-ui-top-right {
+        max-height: 100%;
+      } */
+  
+    #queryDiv {
+      min-width: 250px;
+      font-size: 14px;
+      padding: 10px;
+      display: none;
+      overflow-y: auto;
+      overflow-x: hidden;
+    }
+  
+    .geometry-button {
+      flex: 1;
+      border-style: solid;
+      border-width: 1px;
+      border-image: none;
+    }
+    .geometry-button-selected {
+      background: #4c4c4c;
+      color: #fff;
+    }
+  </style>
+  
+  <link
+    rel="stylesheet"
+    href="https://js.arcgis.com/4.20/esri/themes/light/main.css"
+  />
+  
+  <main class="flex max-md:flex-col">
+    <!-- <div id="viewDiv" class="h-[90vh] w-full"></div> -->
+    <div id="viewDiv" class="w-full h-[50vh] md:w-2/3 md:h-[90vh]"></div>
+  
+    <div class="w-full md:w-1/3 overflow-scroll flex flex-col gap-2 m-1">
+      <div id="queryDiv" class="border border-secondary p-3">
+        <b>Consulta por:</b><br />
+        <div class="flex flex-row">
+          <button
+            class="esri-widget--button esri-icon-map-pin geometry-button"
+            id="point-geometry-button"
+            value="point"
+            title="Query by point"></button>
+          <button
+            class="esri-widget--button esri-icon-polyline geometry-button"
+            id="line-geometry-button"
+            value="polyline"
+            title="Query by line"></button>
+          <button
+            class="esri-widget--button esri-icon-polygon geometry-button"
+            id="polygon-geometry-button"
+            value="polygon"
+            title="Query by polygon"></button>
+        </div>
+  
+        <br />
+        <div class="tooltip">
+          <label for="bufferNum">Raio de alcance:</label>
+          <div id="bufferNum" class="w-[90%] mt-10 mx-auto"></div>
+        </div>
+        <br />
+        <button class="esri-button" id="clearGeometry" type="button">
+          Limpar
+        </button>
+      </div>
+  
+      <div
+        id="resultDiv"
+        class="border border-secondary flex flex-col items-center p-3"
+      >
+        <div class="count">
+          Pontos selecionados:
+          <div
+            class="count whitespace-nowrap text-[14px] font-bold inline-block"
+            id="count"
+          >
+            0
+          </div>
+        </div>
+  
+        <div class="charts" class="">
+          <div>
+            <canvas id="year-chart" height="250" width="260"></canvas>
+          </div>
+          <div class="flex justify-center items-center">
+            <canvas id="disposition-chart" width="150" height="200"></canvas>
+          </div>
+        </div>
+      </div>
+  
+      <div id="resultDiv2" class="esri-widget border border-secondary min-h-56">
+        <div class="charts">
+          <canvas id="disposition-chart" height="200" width="500"></canvas>
+        </div>
+      </div>
+    </div>
+  </main>
+  
+  <script nomodule="">
+    // require([
+    //   "esri/WebScene",
+    //   "esri/views/SceneView",
+    //   "esri/widgets/Legend",
+    //   "esri/layers/GraphicsLayer",
+    //   "esri/widgets/Sketch/SketchViewModel",
+    //   "esri/widgets/Slider",
+    //   "esri/geometry/geometryEngine",
+    //   "esri/Graphic",
+    //   "esri/widgets/Expand",
+    //   "esri/core/promiseUtils",
+    //   "esri/widgets/BasemapGallery",
+    // ], function (
+    //   WebScene,
+    //   SceneView,
+    //   Legend,
+    //   GraphicsLayer,
+    //   SketchViewModel,
+    //   Slider,
+    //   geometryEngine,
+    //   Graphic,
+    //   Expand,
+    //   promiseUtils,
+    //   BasemapGallery
+    // ) {
+    import WebScene from "@arcgis/core/WebScene.js";
+    import SceneView from "@arcgis/core/views/SceneView.js";
+    import Legend from "@arcgis/core/widgets/Legend.js";
+    import GraphicsLayer from "@arcgis/core/layers/GraphicsLayer.js";
+    import SketchViewModel from "@arcgis/core/widgets/Sketch/SketchViewModel.js";
+    import Slider from "@arcgis/core/widgets/Slider.js";
+    import * as geometryEngine from "@arcgis/core/geometry/geometryEngine.js";
+    import Graphic from "@arcgis/core/Graphic.js";
+    import Expand from "@arcgis/core/widgets/Expand.js";
+    import * as promiseUtils from "@arcgis/core/core/promiseUtils.js";
+    import BasemapGallery from "@arcgis/core/widgets/BasemapGallery.js";
+    import Chart from "chart.js/auto";
+    // Load webscene and display it in a SceneView
+    const webscene = new WebScene({
+      portalItem: {
+        id: "16bac724a77149b78e98ec50a250408a", //"00ca13f9e04548c1b2d4d0ea918d46de"
+      },
+    });
+    // create the SceneView
+    const view = new SceneView({
+      container: "viewDiv",
+      map: webscene,
+    });
+    window.view = view;
+    // add a GraphicsLayer for the sketches and the buffer
+    const sketchLayer = new GraphicsLayer();
+    const bufferLayer = new GraphicsLayer();
+    view.map.addMany([bufferLayer, sketchLayer]);
+  
+    let sceneLayer = null;
+    let sceneLayerView = null;
+    let bufferSize = 0;
+  
+    // Assign scene layer once webscene is loaded and initialize UI
+    webscene.load().then(function () {
+      sceneLayer = webscene.layers.find(function (layer) {
+        return layer.title === "Juntar_div2016a_div2016b";
+      });
+      sceneLayer.outFields = ["DATA_FORMAT", "CLASSIFICACAO_FINAL"];
+  
+      view.whenLayerView(sceneLayer).then(function (layerView) {
+        sceneLayerView = layerView;
+        queryDiv.style.display = "block";
+      });
+    });
+  
+    // create the legend
+    const layerInfos = sceneLayer;
+    const legend = new Expand({
+      content: new Legend({
+        view: view,
+        layerInfos: layerInfos,
+        style: "card", // other styles include 'classic'
+      }),
+      view: view,
+      expanded: false,
+    });
+    const mapabase = new Expand({
+      content: new BasemapGallery({
+        view: view,
+      }),
+      view: view,
+      expanded: false,
+    });
+  
+    view.ui.add(mapabase, "top-left");
+  
+    view.ui.add(legend, "top-left");
+  
+    //  DESCOMENTAR PARA VOLTAR COM AS INFOS PARA O MEIO DO GRAFICO
+    // view.ui.add([queryDiv], "top-right");
+    // view.ui.add([resultDiv], "top-right");
+    // view.ui.add([resultDiv2], "bottom-left");
+  
+    // use SketchViewModel to draw polygons that are used as a query
+    let sketchGeometry = null;
+    const sketchViewModel = new SketchViewModel({
+      layer: sketchLayer,
+      defaultUpdateOptions: {
+        tool: "reshape",
+        toggleToolOnClick: false,
+      },
+      view: view,
+      defaultCreateOptions: { hasZ: false },
+    });
+  
+    sketchViewModel.on("create", function (event) {
+      if (event.state === "complete") {
+        sketchGeometry = event.graphic.geometry;
+        runQuery();
+      }
+    });
+  
+    sketchViewModel.on("update", function (event) {
+      if (event.state === "complete") {
+        sketchGeometry = event.graphics[0].geometry;
+        runQuery();
+      }
+    });
+    // draw geometry buttons - use the selected geometry to sktech
+    document
+      .getElementById("point-geometry-button")
+      .addEventListener("click", geometryButtonsClickHandler);
+    document
+      .getElementById("line-geometry-button")
+      .addEventListener("click", geometryButtonsClickHandler);
+    document
+      .getElementById("polygon-geometry-button")
+      .addEventListener("click", geometryButtonsClickHandler);
+    function geometryButtonsClickHandler(event) {
+      const geometryType = event.target.value;
+      clearGeometry();
+      sketchViewModel.create(geometryType);
+    }
+  
+    const bufferNumSlider = new Slider({
+      container: "bufferNum",
+      min: 0,
+      max: 500,
+      steps: 1,
+      visibleElements: {
+        labels: true,
+      },
+      precision: 0,
+      labelFormatFunction: function (value, type) {
+        return value.toString() + "m";
+      },
+      values: [0],
+    });
+    // get user entered values for buffer
+    bufferNumSlider.on(["thumb-change", "thumb-drag"], bufferVariablesChanged);
+    function bufferVariablesChanged(event) {
+      bufferSize = event.value;
+      runQuery();
+    }
+    // Clear the geometry and set the default renderer
+    document
+      .getElementById("clearGeometry")
+      .addEventListener("click", clearGeometry);
+  
+    // Clear the geometry and set the default renderer
+    function clearGeometry() {
+      sketchGeometry = null;
+      sketchViewModel.cancel();
+      sketchLayer.removeAll();
+      bufferLayer.removeAll();
+      clearHighlighting();
+      clearCharts();
+      resultDiv.style.display = "none";
+      resultDiv2.style.display = "none";
+    }
+  
+    // set the geometry query on the visible SceneLayerView
+    var debouncedRunQuery = promiseUtils.debounce(function () {
+      if (!sketchGeometry) {
+        return;
+      }
+  
+      resultDiv.style.display = "flex";
+      resultDiv2.style.display = "flex";
+  
+      updateBufferGraphic(bufferSize);
+      return promiseUtils.eachAlways([queryStatistics(), updateSceneLayer()]);
+    });
+  
+    function runQuery() {
+      debouncedRunQuery().catch((error) => {
+        if (error.name === "AbortError") {
+          return;
+        }
+  
+        console.error(error);
+      });
+    }
+  
+    // Set the renderer with objectIds
+    var highlightHandle = null;
+    function clearHighlighting() {
+      if (highlightHandle) {
+        highlightHandle.remove();
+        highlightHandle = null;
+      }
+    }
+  
+    function highlightBuildings(objectIds) {
+      // Remove any previous highlighting
+      clearHighlighting();
+      const objectIdField = sceneLayer.objectIdField;
+      document.getElementById("count").innerHTML = objectIds.length;
+  
+      highlightHandle = sceneLayerView.highlight(objectIds);
+    }
+  
+    // update the graphic with buffer
+    function updateBufferGraphic(buffer) {
+      // add a polygon graphic for the buffer
+      if (buffer > 0) {
+        var bufferGeometry = geometryEngine.geodesicBuffer(
+          sketchGeometry,
+          buffer,
+          "meters"
+        );
+        if (bufferLayer.graphics.length === 0) {
+          bufferLayer.add(
+            new Graphic({
+              geometry: bufferGeometry,
+              symbol: sketchViewModel.polygonSymbol,
+            })
+          );
+        } else {
+          bufferLayer.graphics.getItemAt(0).geometry = bufferGeometry;
+        }
+      } else {
+        bufferLayer.removeAll();
+      }
+    }
+  
+    function updateSceneLayer() {
+      const query = sceneLayerView.createQuery();
+      query.geometry = sketchGeometry;
+      query.distance = bufferSize;
+      return sceneLayerView.queryObjectIds(query).then(highlightBuildings);
+    }
+  
+    var yearChart = null;
+    var dispositionChart = null;
+    var yearChart2 = null;
+    var materialChart = null;
+  
+    function queryStatistics() {
+      let statDefinitions = [
+        {
+          onStatisticField: "1",
+          outStatisticFieldName: "totalcasos",
+          statisticType: "count",
+        },
+        {
+          onStatisticField:
+            "CASE WHEN CLASSIFICACAO_FINAL = 'Confirmado' THEN 1 ELSE 0 END",
+          outStatisticFieldName: "casos_confirmados",
+          statisticType: "sum",
+        },
+        {
+          onStatisticField:
+            "CASE WHEN CLASSIFICACAO_FINAL = 'Descartado' THEN 1 ELSE 0 END",
+          outStatisticFieldName: "casos_descartados",
+          statisticType: "sum",
+        },
+        //   {
+        //     onStatisticField:
+        //       "CASE WHEN EXTRACT(MONTH FROM DATA_FORMAT) = 1 THEN 1 ELSE 0 END",
+        //     outStatisticFieldName: "jan",
+        //     statisticType: "sum",
+        //   },
+      ];
+  
+      for (let month = 1; month <= 12; month++) {
+        let statisticDefinition = {
+          onStatisticField: `CASE WHEN EXTRACT(MONTH FROM DATA_FORMAT) = ${month} THEN 1 ELSE 0 END`,
+          outStatisticFieldName: "mes_" + month,
+          statisticType: "sum",
+        };
+  
+        statDefinitions.push(statisticDefinition);
+      }
+  
+      const query = sceneLayerView.createQuery();
+      query.geometry = sketchGeometry;
+      query.distance = bufferSize;
+      query.outStatistics = statDefinitions;
+  
+      return sceneLayerView.queryFeatures(query).then(function (result) {
+        console.log(result);
+        const allStats = result.features[0].attributes;
+        const yearChartStats = {
+          solved: [
+            allStats.mes_1,
+            allStats.mes_2,
+            allStats.mes_3,
+            allStats.mes_4,
+            allStats.mes_5,
+            allStats.mes_6,
+            allStats.mes_7,
+            allStats.mes_8,
+            allStats.mes_9,
+            allStats.mes_10,
+            allStats.mes_11,
+            allStats.mes_12,
+          ],
+        };
+        updateChart(yearChart, yearChartStats);
+  
+        const dispositionStats = [
+          allStats.casos_confirmados,
+          allStats.casos_descartados,
+        ];
+        updateChart(dispositionChart, dispositionStats);
+      }, console.error);
+    }
+  
+    // Updates the given chart with new data
+    function updateChart(chart, dataValues) {
+      if (chart.config.type === "doughnut") {
+        chart.data.datasets[0].data = dataValues;
+      } else {
+        chart.data.datasets[0].data = dataValues.solved;
+        //   chart.data.datasets[1].data = dataValues.unsolved;
+      }
+      chart.update();
+    }
+  
+  
+    function createCharts() {
+      // totalcasos = document.getElementById("num-casos");
+      // rcasos = document.getElementById("lname");
+      // avgAge = document.getElementById("avg-age");
+  
+      // avgOpenTime = document.getElementById("avg-open-time");
+  
+      const yearCanvas = document.getElementById("year-chart");
+  
+      yearChart = new Chart(yearCanvas.getContext("2d"), {
+        type: "bar",
+        data: {
+          labels: [
+            "jan",
+            "fev",
+            "mar",
+            "abr",
+            "mai",
+            "jun",
+            "jul",
+            "ago",
+            "set",
+            "out",
+            "nov",
+            "dez",
+          ],
+          datasets: [
+            {
+              label: "Casos Notificados",
+              backgroundColor: "#149dcf",
+              stack: "Stack 0",
+              data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            },
+            //   {
+            //     label: "Óbitos",
+            //     backgroundColor: "#ed5050",
+            //     stack: "Stack 0",
+            //     data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            //   },
+          ],
+        },
+        options: {
+          responsive: false,
+          legend: {
+            position: "top",
+          },
+          title: {
+            display: true,
+            text: "Casos por mês/ano",
+          },
+          scales: {
+            //   x: {
+            //     ticks: {
+            //       callback: function (value, index, ticks) {
+            //         // console.log(ticks);
+            //         return value;
+            //       },
+            //     },
+            //   },
+            yAxes: [
+              {
+                stacked: true,
+                ticks: {
+                  beginAtZero: true,
+                },
+              },
+            ],
+          },
+        },
+      });
+  
+      const dispositionCanvas = document.getElementById("disposition-chart");
+      dispositionChart = new Chart(dispositionCanvas.getContext("2d"), {
+        type: "doughnut",
+        title: "Casos",
+        data: {
+          labels: ["Casos Confirmados", "Casos Descartados"],
+          datasets: [
+            {
+              backgroundColor: ["#149dcf", "#ed5050"],
+              borderColor: "rgb(255, 255, 255)",
+              borderWidth: 1,
+              data: [0, 0],
+            },
+          ],
+        },
+        options: {
+          responsive: false,
+          cutoutPercentage: 35,
+          legend: {
+            position: "bottom",
+          },
+          title: {
+            display: true,
+            text: "Comorbidades",
+          },
+        },
+      });
+    }
+  
+    function clearCharts() {
+      updateChart(dispositionChart, [0, 0]);
+      updateChart(yearChart, [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
+      // updateChart(yearChart2, [0, 0, 0, 0, 0, 0]);
+  
+      document.getElementById("count").innerHTML = 0;
+    }
+  
+    createCharts();
+    // });
+  </script>
+  
+</MapLayout>

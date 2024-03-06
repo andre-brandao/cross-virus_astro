@@ -1,48 +1,49 @@
 ---
-import Layout from "../../layouts/Layout.astro";
+import Layout from "../../layouts/MapLayout.astro";
 
 let maps = [
   {
-    title: "João Monlevade - COVID-19",
+    title: "João Monlevade COVID-19 (2020-2021)",
     description: "Clique e segure no mapa para escanear casos e estatísticas sobre a COVID em um raio de 1KM",
-    image: "/dash2.png",
-    link: "/astro_maps/joao_monlevade/dashboard2",
+    image: "/map_covid_2020_2021.png",
+    link: "/astro_maps/joao_monlevade/map_covid_2020_2021",
   },
   {
-    title: "João Monlevade - Dengue",
-    description: "Analise ruas e bairros com maior incidência de dengue",
-    image: "/dash4.png",
-    link: "/astro_maps/joao_monlevade/dashboard4",
+    title: "João Monlevade Dengue (2021)",
+    description: "Analise ruas e bairros com maior incidência de covid ",
+    image: "/scene_covid_2021.png",
+    link: "/astro_maps/joao_monlevade/scene_covid_2021",
   },
 
   {
     title: "João Monlevade - Linhas de Onibus",
     description: "Mapa das linhas de onibus da cidade de João Monlevade",
-    image: "/onibus.png",
-    link: "/astro_maps/joao_monlevade/dashboard_onibus",
+    image: "/map_onibus.png",
+    link: "/astro_maps/joao_monlevade/map_onibus",
   },
   {
-    title: "Divinopolis - Dengue 2017",
-    description: "Mapa mapeando casos de Dengue em 2017",
-    image:"/placeholder.svg",
-    link:"/astro_maps/divinopolis/covid_2017"
-  },
-  {
-    title: "Divinopolis - Dengue 2016",
+    title: "Divinopolis Dengue (2016)",
     description: "Analise ruas e bairros com maior incidência de dengue em 2016",
-    image:"/placeholder.svg",
-    link:"/astro_maps/divinopolis/covid_2017_dash2"
+    image:"/scene_dengue_2016.png",
+    link:"/astro_maps/divinopolis/scene_dengue_2016"
   },
   {
-    title: "Divinopolis - Dengue 2016",
-    description: "Analise ruas e bairros com maior incidência de dengue em 2016",
-    image:"/placeholder.svg",
-    link:"/astro_maps/divinopolis/div2016map"
-  }
+    title: "Divinopolis Dengue (2016)",
+    description: "Clique e segure no mapa para escanear casos e estatísticas sobre a dengue em um raio de 1KM",
+    image:"/map_dengue_2016.png",
+    link:"/astro_maps/divinopolis/map_dengue_2016"
+  },
+  {
+    title: "Divinopolis Dengue (2017)",
+    description: "Clique e segure no mapa para escanear casos e estatísticas sobre a dengue em um raio de 1KM",
+    image:"/map_dengue_2017.png",
+    link:"/astro_maps/divinopolis/map_dengue_2017"
+  },
 ];
+
 ---
 
-<Layout title="Maps">
+<Layout title="Maps" maps={[]}>
   <div class="w-full py-6">
     <div class="container grid items-start mx-auto gap-6 px-4 md:px-6">
       <div class="grid grid-cols-1 items-start gap-6">
@@ -54,7 +55,7 @@ let maps = [
             Nossos Mapas
           </h1>
           <p
-            class="text-gray-500 md:text-xl/relaxed lg:text-base/relaxe text-white"
+            class=" md:text-xl/relaxed lg:text-base/relaxe text-white"
           >
             Alguns de nossos mapas.
           </p>
@@ -64,13 +65,13 @@ let maps = [
           {
             maps.map((m) => (
               <a
-                class="grid grid-cols-1 items-end max-md:items-center gap-6 p-3 bg-gray-100 hover:bg-primary rounded-xl"
+                class="grid grid-cols-1 items-end max-md:items-center gap-6 p-3 bg-gray-100 hover:bg-gray-500 shadow-sm  hover:shadow-md rounded-xl bg-300% font-bold hover:bg-gradient-to-r from-secondary via-primary to-secondary hover:text-transparent hover:bg-clip-text animate-gradient"
                 href={m.link}
                 hover:outline-primary
               >
-                <div class="flex flex-col w-full items-end max-md:items-center gap-1 ">
+                <div class="flex flex-col w-full items-center  max-md:items-center gap-1 ">
                   <>
-                    <h2 class="text-xl font-semibold ">{m.title}</h2>
+                    <h2 class="text-xl font-semibold  ">{m.title}</h2>
                     <p class="text-lg text-gray-500 dark:text-gray-400">
                       {m.description}
                     </p>
@@ -93,3 +94,27 @@ let maps = [
     </div>
   </div>
 </Layout>
+
+
+
+<style lang="postcss">
+	/* TITLE */
+	.animate-gradient {
+		background-size: 300%;
+		-webkit-animation: animatedgradient 2s ease infinite alternate;
+		-moz-animation: animatedgradient 2s ease infinite alternate;
+		animation: animatedgradient 2s ease infinite alternate;
+	}
+
+	@keyframes animatedgradient {
+		0% {
+			background-position: 0% 50%;
+		}
+		50% {
+			background-position: 100% 50%;
+		}
+		100% {
+			background-position: 0% 50%;
+		}
+	}
+</style>

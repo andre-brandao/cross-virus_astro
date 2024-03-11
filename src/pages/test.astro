@@ -1,0 +1,85 @@
+---
+// import SvelteMap from "../components/svelte/MapDrag.svelte";
+import MapWrapper from "../components/svelte/PolygonSearch/ScenePolygon.svelte";
+
+import Layout from "../layouts/MapLayout.astro";
+
+// ID DO MAPA ARCGIS
+let mapID = "a08e05ffc384476eb4a8f30ee8bf0ae8";
+
+let sql_filter = [
+{
+          onStatisticField: "CASE WHEN sexo = 'F' THEN 1 ELSE 0 END",
+          outStatisticFieldName: "feminino",
+          statisticType: "sum",
+        },
+        {
+          onStatisticField: "CASE WHEN idade LIKE  '%1 Ano%' THEN 1 ELSE 0 END",
+          outStatisticFieldName: "menor1",
+          statisticType: "sum",
+        },
+        {
+          onStatisticField: "CASE WHEN idade LIKE  '%1 a 4%'  THEN 1 ELSE 0 END",
+          outStatisticFieldName: "de_1_4_anos",
+          statisticType: "sum",
+        },
+        {
+          onStatisticField: "CASE WHEN idade LIKE  '%5 a 9%'  THEN 1 ELSE 0 END",
+          outStatisticFieldName: "de_5_9_anos",
+          statisticType: "sum",
+        },
+        {
+          onStatisticField:
+            "CASE WHEN idade LIKE  '%10 a 14%'  THEN 1 ELSE 0 END",
+          outStatisticFieldName: "de_10_14_anos",
+          statisticType: "sum",
+        },
+        {
+          onStatisticField:
+            "CASE WHEN idade LIKE  '%15 a 19%'  THEN 1 ELSE 0 END",
+          outStatisticFieldName: "de_15_19_anos",
+          statisticType: "sum",
+        },
+        {
+          onStatisticField:
+            "CASE WHEN idade LIKE  '%20 a 29%'  THEN 1 ELSE 0 END",
+          outStatisticFieldName: "de_20_29_anos",
+          statisticType: "sum",
+        },
+        {
+          onStatisticField:
+            "CASE WHEN idade LIKE  '%30 a 39%'  THEN 1 ELSE 0 END",
+          outStatisticFieldName: "de_30_39_anos",
+          statisticType: "sum",
+        },
+        {
+          onStatisticField:
+            "CASE WHEN idade LIKE  '%40 a 49%'  THEN 1 ELSE 0 END",
+          outStatisticFieldName: "de_40_49_anos",
+          statisticType: "sum",
+        },
+        {
+          onStatisticField:
+            "CASE WHEN idade LIKE  '%50 a 59%'  THEN 1 ELSE 0 END",
+          outStatisticFieldName: "de_50_59_anos",
+          statisticType: "sum",
+        },
+];
+
+---
+
+<Layout title="Mapa" maps={[]}>
+  <MapWrapper
+    client:only
+    mapConfig={{
+      mapID,
+      options: {
+        filter: {
+          fieldNames: ["SEXO", "IDADE", "MES", "ANO"],
+          layerName: "Covidfinal",
+          sql_filter,
+        },
+      },
+    }}
+  />
+</Layout>

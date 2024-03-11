@@ -272,7 +272,7 @@
 
         sceneLayer
           .queryFeatures(query)
-          .then(handleQueryResults)
+          .then(dispatchQueryResults)
           .catch((e: any) => {
             console.error("Error querying features", e);
           });
@@ -280,13 +280,13 @@
     }
   };
 
-  function handleQueryResults(e: CustomEvent<any>) {
+  function dispatchQueryResults(e: CustomEvent<any>) {
     const results = e.features[0].attributes;
 
     // console.log(results);
 
     // const query_values = results.map((res: any) => res.value);
-    console.log("query results:", results);
+    // console.log("query results:", results);
     dispatch("query_results", results);
   }
 

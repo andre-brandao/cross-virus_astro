@@ -9,7 +9,7 @@ export interface ChartFiltered {
   // data_keys: string[];
   sql_filter: ArcgisFilter[];
 
-  size: {
+  size?: {
     width: number;
     height: number;
   };

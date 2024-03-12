@@ -11,7 +11,7 @@
   import Widget from "@arcgis/core/widgets/Widget";
   // import View from "@arcgis/core/views/View.js";
   // import Draw from "@arcgis/core/views/draw/Draw.js";
-
+  import FeatureTable from "@arcgis/core/widgets/FeatureTable";
   // export let mapID: string;
 
   const dispatch = createEventDispatcher();
@@ -19,6 +19,8 @@
   import type { ArcgisFilter, DragSearchMapParams } from "../types";
 
   export let options: DragSearchMapParams;
+
+  let featureTable: FeatureTable;
 
   interface ArcgisEvents {
     "on:query_results": (e: CustomEvent<any>) => void;
@@ -65,6 +67,8 @@
       }
     }
 
+    view.ui.add("filter-wrap", "top-right");
+
     // BUSCA ESTATISTICAS AO DESLIZAR
 
     if (options && options.filter) {
@@ -78,7 +82,6 @@
       }
 
       const queryResults = (results: any) => {
-
         const query_res_values = results.map((res: any) => res.value);
 
         // console.log('Resultados query:', query_res_values);
@@ -98,6 +101,62 @@
       view.when().then(() => {
         // deprecated(node, view, options)
         const layer = map.layers.getItemAt(0);
+
+        //  placeholder for layer title
+        layer.title = "Info Casos";
+
+        console.log(layer);
+
+        featureTable = new FeatureTable({
+          view: view, // Required for feature highlight to work
+          layer: layer,
+          visibleElements: {
+            // Autocast to VisibleElements
+            menuItems: {
+              clearSelection: true,
+              refreshData: true,
+              toggleColumns: true,
+              selectedRecordsShowAllToggle: true,
+              selectedRecordsShowSelectedToggle: true,
+              zoomToSelection: true,
+            },
+          },
+          tableTemplate: {
+            // Autocast to TableTemplate
+            columnTemplates: [
+              // Takes an array of FieldColumnTemplate and GroupColumnTemplate
+              {
+                // Autocast to FieldColumnTemplate.
+                type: "field",
+                fieldName: "SEMANA_EPI",
+                label: "Semana epidemiologica",
+                direction: "asc",
+              },
+              {
+                type: "field",
+                fieldName: "DT_NASC",
+                label: "Data nascimento",
+              },
+              {
+                type: "field",
+                fieldName: "IDADE",
+                label: "Idade",
+              },
+              {
+                type: "field",
+                fieldName: "CS_SEXO",
+                label: "Sexo",
+              },
+              {
+                type: "field",
+                fieldName: "NM_BAIRRO",
+                label: "Bairro",
+              },
+            ],
+          },
+          container: tableDiv,
+        });
+
         // !!!! FIELD NAMES
         // @ts-expect-error
         layer.outFields = fieldNames;
@@ -167,6 +226,15 @@
     // add the stat definitions to the the statistics query object cloned earlier
     statsQuery.outStatistics = sql_filter;
 
+    // let original_layer = layerView
+
+    if (sem_epi !== "") {
+      layerView.filter = {
+        where: "SEMANA_EPI = " + sem_epi + "",
+      };
+    }else{
+      layerView.filter = null;
+    }
     // execute the query for all features in the layer view
 
     const query_response = layerView.queryFeatures(statsQuery).then(
@@ -178,6 +246,17 @@
         console.error(e);
       }
     );
+
+    // layerView.queryObjectIds(query).then(function (ids: any) {
+    //   // if (featureTable.highlightIds.includes(ids)) {
+    //   //   // Remove feature from current selection if feature
+    //   //   // is already added to highlightIds collection
+    //   //   featureTable.highlightIds.remove(ids);
+    //   // } else {
+    //   //   // Add this feature to the featureTable highlightIds collection
+    //   //   featureTable.highlightIds.add(ids);
+    //   // }
+    // });
 
     const { where } = filter;
     if (where) {
@@ -224,7 +303,36 @@
     }
   });
 
-  export let mapClass = "w-full h-[50vh] md:w-2/3 md:h-[90vh]";
+  let tableDiv: HTMLDivElement;
+  let sem_epi = "";
+  // export let mapClass = "";
 </script>
 
-<div class={mapClass} use:drag_search_map={options}></div>
+<div
+  id="filter-wrap"
+  class="bg-white border border-primary flex p-1 items-center justify-center"
+>
+  <label for="sem-epi">Selecione a semana epidemiologica: </label>
+  <select name="sem-epi" id="sem-epi" class="font-bold" bind:value={sem_epi}>
+    <option value=""></option>
+    <option value="1">Semana 1</option>
+    <option value="2">Semana 2</option>
+    <option value="3">Semana 3</option>
+    <option value="4">Semana 4</option>
+    <option value="5">Semana 5</option>
+    <option value="6">Semana 6</option>
+    <option value="7">Semana 7</option>
+    <option value="8">Semana 8</option>
+    <option value="9">Semana 9</option>
+    <option value="10">Semana 10</option>
+  </select>
+</div>
+<!-- <div class=" "> -->
+<div
+  class="w-full h-[50vh] md:w-2/3 md:h-[90vh]"
+  use:drag_search_map={options}
+></div>
+
+<div class="w-1/3 h-[90vh]">
+  <div id="tableDiv" bind:this={tableDiv} class="w-full h-full"></div>
+</div>

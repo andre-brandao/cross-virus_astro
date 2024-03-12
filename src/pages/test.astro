@@ -1,6 +1,6 @@
 ---
 // import SvelteMap from "../components/svelte/MapDrag.svelte";
-import MapWrapper from "../components/svelte/DragSearch/MapDrag.svelte";
+import MapWrapper from "../components/DashboardTest.svelte";
 
 import Layout from "../layouts/MapLayout.astro";
 
@@ -62,17 +62,5 @@ let sql_filter = [
 ---
 
 <Layout title="Mapa" maps={[]}>
-  <MapWrapper
-    client:only
-    options={{
-      mapID,
-      options: {
-        filter: {
-          fieldNames: ["SEXO", "IDADE", "MES", "ANO"],
-          sql_filter:[],
-          // layerName: "Covidfinal",
-        },
-      },
-    }}
-  />
+  <MapWrapper client:only />
 </Layout>

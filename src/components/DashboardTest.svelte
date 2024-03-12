@@ -13,6 +13,11 @@
 
   let mapId = "0f9670330f6d4cdda508fd926e59f0c8";
 
+   let fieldNames = [
+    "SEMANA_EPI",
+    "IDADE",
+    "FEBRE",
+   ]
   //   onStatisticField:
   //    "CASE WHEN CLASSIFICACAO_FINAL = 'Confirmado' THEN 1 ELSE 0 END",
   //         outStatisticFieldName: "casos_confirmados",
@@ -125,7 +130,7 @@
       },
       sql_filter: filter_idade,
     },
-    // febre
+    // // febre
     {
       chart: {
         type: "doughnut",
@@ -175,7 +180,7 @@
     mapID: mapId,
     options: {
       filter: {
-        fieldNames: ["SEMANA_EPI", "IDADE", "FEBRE"],
+        fieldNames,
         radius: 1,
         // sql_filter: filter_sem_epi,
         // where: "CLASSIFICACAO_FINAL = 'Confirmado'"
@@ -188,7 +193,7 @@
     mapID: "ffcd919361a342ce85a28f6c48dd02ac",
     options: {
       filter: {
-        fieldNames: ["SEMANA_EPI", "IDADE"],
+        fieldNames,
         layerName: "dengue24ok",
         radius: 1,
         // sql_filter: filter_sem_epi,
@@ -205,7 +210,7 @@
     <label for="map-type">Tipo de Mapa</label>
     <select name="map-type" id="map-type" bind:value={select_value}>
       <option value="drag">Arraste para buscar</option>
-      <option value="polygon">Desenhar Poligonos</option>
+      <!-- <option value="polygon">Desenhar Poligonos</option> -->
     </select>
   </div>
 </div>

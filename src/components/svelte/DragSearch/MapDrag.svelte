@@ -314,7 +314,7 @@
 >
   <label for="sem-epi">Selecione a semana epidemiologica: </label>
   <select name="sem-epi" id="sem-epi" class="font-bold" bind:value={sem_epi}>
-    <option value=""></option>
+    <option value="">Limpar</option>
     <option value="1">Semana 1</option>
     <option value="2">Semana 2</option>
     <option value="3">Semana 3</option>
@@ -328,11 +328,12 @@
   </select>
 </div>
 <!-- <div class=" "> -->
+  
 <div
   class="w-full h-[50vh] md:w-2/3 md:h-[90vh]"
   use:drag_search_map={options}
 ></div>
 
-<div class="w-1/3 h-[90vh]">
+<div class="w-1/3 max-md:w-full h-[90vh]">
   <div id="tableDiv" bind:this={tableDiv} class="w-full h-full"></div>
 </div>

@@ -1,6 +1,6 @@
 ---
 import MapWrapper from "../../../components/svelte/PolygonSearch/ScenePolygonCharts.svelte";
-import Layout from "../../../layouts/MapLayout.astro";
+import Layout from "./Layout.astro";
 
 // ID DO MAPA ARCGIS
 let mapID = "a08e05ffc384476eb4a8f30ee8bf0ae8";
@@ -59,7 +59,7 @@ let sql_filter = [
 ];
 ---
 
-<Layout title="Mapa" maps={[]}>
+<Layout title="Mapa" >
   <MapWrapper
     client:only
     mapConfig={{

@@ -1,11 +1,11 @@
 ---
 import SimpleMap from "../../../components/svelte/SimpleMap/SimpleMap.svelte";
-import Layout from "../../../layouts/MapLayout.astro";
+import Layout from "./Layout.astro";
 // ID DO MAPA ARCGIS
 let mapID = "bc21c1913f724a3ba0ac80c972b9d809";
 ---
 
-<Layout title="" maps={[]}>
+<Layout title="" >
   <SimpleMap
     client:only
     options={{

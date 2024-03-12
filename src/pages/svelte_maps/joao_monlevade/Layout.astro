@@ -1,0 +1,78 @@
+---
+import NavBar from "../../../components/NavBar.astro";
+
+interface Props {
+  title: string;
+}
+
+const { title } = Astro.props;
+
+let base_url = "/svelte_maps/joao_monlevade/";
+
+let maps = [{
+    label: "Dengue 2024 Map",
+    url: base_url + "map_dengue_2024"
+},
+ {
+    label: "Covid 2020 - 2021",
+    url: base_url + "map_covid_2020_2021"
+ },
+ {
+    label: "Covid 2021 Scene",
+    url: base_url + "scene_covid_2021"
+ },
+ {
+    label: "Onibus",
+    url: base_url + "map_onibus"
+ }
+
+];
+
+---
+
+<!doctype html>
+<html lang="en" class="light">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="description" content="Astro description" />
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1,user-scalable=no" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="generator" content={Astro.generator} />
+    <title>{title}</title>
+  </head>
+  <body>
+    <div class="border border-primary">
+      <NavBar maps={maps} />
+    </div>
+    <slot />
+  </body>
+</html>
+<style is:global>
+  :root {
+    --accent: 136, 58, 234;
+    --accent-light: 224, 204, 250;
+    --accent-dark: 49, 10, 101;
+    --accent-gradient: linear-gradient(
+      45deg,
+      rgb(var(--accent)),
+      rgb(var(--accent-light)) 30%,
+      white 60%
+    );
+  }
+  html {
+    font-family: system-ui, sans-serif;
+    /* background: #13151a; */
+    background-size: 224px;
+  }
+  code {
+    font-family:
+      Menlo,
+      Monaco,
+      Lucida Console,
+      Liberation Mono,
+      DejaVu Sans Mono,
+      Bitstream Vera Sans Mono,
+      Courier New,
+      monospace;
+  }
+</style>

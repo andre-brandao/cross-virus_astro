@@ -51,7 +51,7 @@ class="h-16 bg-secondary flex gap-3 justify-between"
       maps.map((m, i) => {
         return (
           <>
-            <a class="font-medium hover:underline bg-300% font-bold hover:bg-gradient-to-r from-secondary via-primary to-secondary hover:text-transparent hover:bg-clip-text animate-gradient" href={m.url}>
+            <a class="hover:underline bg-300% font-bold hover:bg-gradient-to-r from-secondary via-primary to-secondary hover:text-transparent hover:bg-clip-text animate-gradient" href={m.url}>
               {m.label}
             </a>
             <span hidden={maps.length - 1 == i}>- </span>

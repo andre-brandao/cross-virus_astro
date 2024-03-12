@@ -1,0 +1,222 @@
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="initial-scale=1,maximum-scale=1,user-scalable=no"
+    />
+    <title>
+      Filtro por Semana epidemiológica
+    </title>
+
+    <link
+      rel="stylesheet"
+      href="https://js.arcgis.com/4.20/esri/themes/light/main.css"
+    />
+    <script src="https://js.arcgis.com/4.20/"></script>
+
+    <style>
+      html,
+      body,
+      #viewDiv {
+        padding: 0;
+        margin: 0;
+        height: 100%;
+        width: 100%;
+      }
+
+      #seasons-filter {
+        height: 250px;
+        width: 100%;
+        visibility: hidden;
+      }
+
+      .season-item {
+        width: 100%;
+        padding: 10px;
+        text-align: center;
+        vertical-align: baseline;
+        cursor: pointer;
+        height: 25px;
+      }
+
+      .season-item:focus {
+        background-color: dimgrey;
+      }
+
+      .season-item:hover {
+        background-color: dimgrey;
+      }
+
+      #titleDiv {
+        padding: 10px;
+      }
+
+      #titleText {
+        font-size: 20pt;
+        font-weight: 60;
+        padding-bottom: 10px;
+      }
+    </style>
+    <script>
+      require([
+        "esri/views/MapView",
+        "esri/Map",
+        "esri/layers/FeatureLayer",
+        "esri/widgets/Expand",
+		"esri/widgets/LayerList",
+		"esri/widgets/Legend"
+		
+      ], (MapView, Map, FeatureLayer, Expand, LayerList, Legend) => {
+        let floodLayerView;
+
+        // flash flood warnings layer
+        const layer = new FeatureLayer({
+          portalItem: {
+            id: "f64a8f67e8954052a1136b2dd197d566"
+          },
+          outFields: ["SEMANA_EPI"]
+        });
+
+ const layer2 = new FeatureLayer({
+          portalItem: {
+            id: "beda58e4b243440bac47dc30a1f17224"
+          },
+          outFields: ["Bairro"]
+        });
+
+
+ const layer3 = new FeatureLayer({
+          portalItem: {
+            id: "3f760d860152466fbeba72cf23e68b47"
+          }
+        });
+
+
+
+        const map = new Map({
+          basemap: "streets",
+          layers: [layer3, layer, layer2]
+		 
+		  
+        });
+
+        const view = new MapView({
+          map: map,
+          container: "viewDiv",
+		   center: [-43.174553797591855,-19.82598818295542],
+		  zoom: 13
+        });
+
+        const seasonsNodes = document.querySelectorAll(`.season-item`);
+		
+        const seasonsElement = document.getElementById("seasons-filter");
+
+        // click event handler for seasons choices
+        seasonsElement.addEventListener("click", filterBySeason);
+
+        // User clicked on Winter, Spring, Summer or Fall
+        // set an attribute filter on flood warnings layer view
+        // to display the warnings issued in that season
+        function filterBySeason(event) {
+          const selectedSeason = event.target.getAttribute("data-season");
+          floodLayerView.filter = {
+            where: "SEMANA_EPI = " + selectedSeason + ""
+          };
+        }
+
+        const legend = new Legend({
+            view: view,
+            layerInfos: [
+              {
+                layer: layer3,
+                title: "Densidade de casos"
+              },
+			  {
+                layer: layer,
+                title: "Agregações - cluster"
+              },
+			  {
+                layer: layer2,
+                title: "Regional"
+              }
+			  
+			  
+			  
+            ]
+          });
+		  
+        view.whenLayerView(layer).then((layerView) => {
+          // flash flood warnings layer loaded
+          // get a reference to the flood warnings layerview
+          floodLayerView = layerView;
+
+          // set up UI items
+          seasonsElement.style.visibility = "visible";
+		  
+          const seasonsExpand = new Expand({
+            view: view,
+            content: seasonsElement,
+            expandIconClass: "esri-icon-filter",
+            group: "top-right"
+          });
+		  
+		   const legendExpand = new Expand({
+            view: view,
+            content: legend,
+            expandIconClass: "esri-icon-legend",
+            group: "bottom-right"
+          });
+		  
+		  const layerList = new LayerList({
+            view: view
+          });
+          
+		  const layerExpand = new Expand({
+            view: view,
+            content: layerList,
+            expandIconClass: "esri-icon-layers",
+            group: "top-left"
+          });
+
+     // Add widget to the top right corner of the view
+          view.ui.add(layerExpand, "top-left");
+		  
+		    // Add widget to the bottom right corner of the view
+          view.ui.add(legendExpand, "bottom-right");
+		  
+          //clear the filters when user closes the expand widget
+          seasonsExpand.watch("expanded", () => {
+            if (!seasonsExpand.expanded) {
+              floodLayerView.filter = null;
+            }
+          });
+          view.ui.add("titleDiv", "top-right");
+		   view.ui.add(seasonsExpand, "top-right");
+        });
+      });
+    </script>
+  </head>
+
+  <body>
+    <div id="seasons-filter" class="esri-widget">
+      <div class="season-item visible-season" data-season="1">1</div>
+      <div class="season-item visible-season" data-season="2">2</div>
+      <div class="season-item visible-season" data-season="3">3</div>
+      <div class="season-item visible-season" data-season="4">4</div>
+	  <div class="season-item visible-season" data-season="5">5</div>
+      <div class="season-item visible-season" data-season="6">6</div>
+      <div class="season-item visible-season" data-season="7">7</div>
+      <div class="season-item visible-season" data-season="8">8</div>
+	  <div class="season-item visible-season" data-season="9">9</div>
+      <div class="season-item visible-season" data-season="10">10</div>
+	</div>
+    <div id="viewDiv"></div>
+    <div id="titleDiv" class="esri-widget">
+      <div id="titleText">SEMANA EPIDEMIOLOGICA</div>
+      <div>2024 (Jan - Mar)</div>
+    </div>
+  </body>
+</html>

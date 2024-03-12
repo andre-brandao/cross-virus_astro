@@ -1,6 +1,6 @@
 ---
 import MapWrapper from "../../../components/svelte/PolygonSearch/ScenePolygonCharts.svelte";
-import Layout from "../../../layouts/MapLayout.astro";
+import Layout from "./Layout.astro";
 
 // ID DO MAPA ARCGIS
 let mapID = "16bac724a77149b78e98ec50a250408a";
@@ -22,7 +22,7 @@ for (let month = 1; month <= 12; month++) {
 }
 ---
 
-<Layout title="Mapa" maps={[]}>
+<Layout title="Mapa" >
   <MapWrapper
     client:only
     mapConfig={{

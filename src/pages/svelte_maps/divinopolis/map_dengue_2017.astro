@@ -1,7 +1,7 @@
 ---
 import DragSearchMap from "../../../components/svelte/DragSearch/MapDragCharts.svelte";
 import type { ChartFiltered } from "../../../components/svelte/types.ts";
-import Layout from "../../../layouts/MapLayout.astro";
+import Layout from "./Layout.astro";
 // ID DO MAPA ARCGIS
 let mapID = "679e7bc6bab640c9afe89ece3c5a4348";
 
@@ -133,7 +133,7 @@ let graficos: ChartFiltered[] = [
 ];
 ---
 
-<Layout title="" maps={[]}>
+<Layout title="" >
   <DragSearchMap
     client:only
     mapConfig={{

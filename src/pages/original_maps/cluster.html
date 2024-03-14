@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta
+    name="viewport"
+    content="initial-scale=1,maximum-scale=1,user-scalable=no"
+  />
+
+    <title>Intro to clustering | Sample | ArcGIS Maps SDK for JavaScript 4.29</title>
+
+    <style>
+      html,
+      body,
+      #viewDiv {
+        padding: 0;
+        margin: 0;
+        height: 100%;
+        width: 100%;
+        background: rgba(50,50,50);
+      }
+      #infoDiv {
+        padding: 10px;
+      }
+    </style>
+
+    <link rel="stylesheet" href="https://js.arcgis.com/4.29/esri/themes/dark/main.css" />
+    <script src="https://js.arcgis.com/4.29/"></script>
+
+    <script>
+      require([
+        "esri/Map",
+        "esri/WebMap",
+        "esri/layers/FeatureLayer",
+        "esri/layers/GeoJSONLayer",
+        "esri/views/MapView",
+        "esri/widgets/Legend",
+        "esri/widgets/Expand",
+        "esri/widgets/Home"
+      ], (Map, WebMap, FeatureLayer, GeoJSONLayer, MapView, Legend, Expand, Home) => {
+
+        // Configures clustering on the layer. A cluster radius
+        // of 100px indicates an area comprising screen space 100px
+        // in length from the center of the cluster
+
+        const clusterConfig = {
+          type: "cluster",
+          clusterRadius: "100px",
+          // {cluster_count} is an aggregate field containing
+          // the number of features comprised by the cluster
+          popupTemplate: {
+            title: "Cluster por centro médio",
+            content: "Este cluster representa {cluster_count} casos.",
+            fieldInfos: [{
+              fieldName: "cluster_count",
+              format: {
+                places: 0,
+                digitSeparator: true
+              }
+            }]
+          },
+          clusterMinSize: "24px",
+          clusterMaxSize: "60px",
+          labelingInfo: [{
+            deconflictionStrategy: "none",
+            labelExpressionInfo: {
+              expression: "Text($feature.cluster_count, '#,###')"
+            },
+            symbol: {
+              type: "text",
+              color: "#004a5d",
+              font: {
+                weight: "bold",
+                family: "Noto Sans",
+                size: "12px"
+              }
+            },
+            labelPlacement: "center-center",
+          }]
+        };
+
+
+        const layer = new FeatureLayer({
+         portalItem: {
+            id: "b7aeb59674704275a7e93e991f6f8dbc"
+          },
+          featureReduction: clusterConfig,
+
+            renderer: {
+            type: "simple",
+            field: "mag",
+            symbol: {
+              type: "simple-marker",
+              size: 4,
+              color: "#69dcff",
+              outline: {
+                color: "rgba(0, 139, 174, 0.5)",
+                width: 5
+              }
+            }
+          }
+        });
+
+        // background layer for geographic context
+        const baseLayer = new FeatureLayer({
+          portalItem: {
+            id: "f64a8f67e8954052a1136b2dd197d566"
+          }
+        });
+        const webmap = new WebMap({
+           basemap: "hybrid",
+           layers: [baseLayer, layer]
+           
+        });
+     const view = new MapView({
+          container: "viewDiv",
+           center: [
+            -43.17515579575539, -19.813972727157363
+          ],
+          zoom: 13,
+          map: webmap
+          
+           
+        });
+       view.ui.add(new Home({
+          view: view
+        }), "top-left");
+
+        const legend = new Legend({
+          view: view,
+          container: "legendDiv"
+        });
+
+        const infoDiv = document.getElementById("infoDiv");
+        view.ui.add(new Expand({
+          view: view,
+          content: infoDiv,
+          expandIcon: "list-bullet",
+          expanded: false
+        }), "top-left");
+
+        const toggleButton = document.getElementById("cluster");
+
+        // To turn off clustering on a layer, set the
+        // featureReduction property to null
+        toggleButton.addEventListener("click", () => {
+          let fr = layer.featureReduction;
+          layer.featureReduction = fr && fr.type === "cluster" ? null : clusterConfig;
+          toggleButton.innerText = toggleButton.innerText === "Enable Clustering" ? "Disabilitar Clusterização" : "Habilitar Clusterização";
+        });
+      });
+    </script>
+  </head>
+
+  <body>
+    <div id="viewDiv"></div>
+    <div id="infoDiv" class="esri-widget">
+      <button id="cluster" class="esri-button">Disabilitar Clusterização</button>
+      <div id="legendDiv"></div>
+    </div>
+  </body>
+</html>

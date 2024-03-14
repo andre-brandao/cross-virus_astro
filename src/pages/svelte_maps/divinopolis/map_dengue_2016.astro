@@ -1,0 +1,150 @@
+---
+import DragSearchMap from "../../../components/svelte/DragSearch/MapDragCharts.svelte";
+import type { ChartFiltered } from "../../../components/svelte/types.ts";
+import Layout from "./Layout.astro";
+// ID DO MAPA ARCGIS
+let mapID = "fd76a15edbd6471e9aa6f92da9ee67fb";
+
+// CAMPOS QUE SERÃO UTILIZADOS NO FILTRO (DISPONIVEIS NA PLANILHA DE DADOS)
+let nome_campos = ["DATA_FORMAT", "CLASSIFICACAO_FINAL"];
+
+// FILTRO SQL PARA GERAR OS GRAFICOS
+let sql_filter: {
+  onStatisticField: string;
+  outStatisticFieldName: string;
+  statisticType: string;
+}[] = [];
+
+// GERAR FILTROS PARA CADA MES
+for (let month = 1; month <= 12; month++) {
+  let statisticDefinition = {
+    onStatisticField: `CASE WHEN EXTRACT(MONTH FROM DATA_FORMAT) = ${month} THEN 1 ELSE 0 END`,
+    outStatisticFieldName: "mes_" + month,
+    statisticType: "sum",
+  };
+
+  sql_filter.push(statisticDefinition);
+}
+
+// CONFIGURAÇÃO DOS GRAFICOS
+let graficos: ChartFiltered[] = [
+  {
+    chart: {
+      type: "bar",
+      data: {
+        labels: [
+          "jan",
+          "fev",
+          "mar",
+          "abr",
+          "mai",
+          "jun",
+          "jul",
+          "ago",
+          "set",
+          "out",
+          "nov",
+          "dez",
+        ],
+        datasets: [
+          {
+            label: "Casos Notificados",
+            backgroundColor: "#149dcf",
+            stack: "Stack 0",
+            data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+          },
+        ],
+      },
+      options: {
+        responsive: false,
+        legend: {
+          position: "top",
+        },
+        title: {
+          display: true,
+          text: "Casos por mês/ano",
+        },
+        scales: {
+          //   x: {
+          //     ticks: {
+          //       callback: function (value, index, ticks) {
+          //         // console.log(ticks);
+          //         return value;
+          //       },
+          //     },
+          //   },
+          // yAxes: [
+          //   {
+          //     stacked: true,
+          //     ticks: {
+          //       beginAtZero: true,
+          //     },
+          //   },
+          // ],
+        },
+      },
+    },
+    sql_filter: sql_filter,
+  },
+
+  {
+    chart: {
+      type: "doughnut",
+      title: "Casos",
+      data: {
+        labels: ["Casos Confirmados", "Casos Descartados"],
+        datasets: [
+          {
+            backgroundColor: ["#149dcf", "#ed5050"],
+            borderColor: "rgb(255, 255, 255)",
+            borderWidth: 1,
+            data: [0, 0],
+          },
+        ],
+      },
+      options: {
+        responsive: false,
+        cutoutPercentage: 35,
+        legend: {
+          position: "bottom",
+        },
+        title: {
+          display: true,
+          text: "Comorbidades",
+        },
+      },
+    },
+    // data_keys: ["casos_confirmados", "casos_descartados"],
+    sql_filter: [
+      {
+        onStatisticField:
+          "CASE WHEN CLASSIFICACAO_FINAL = 'Confirmado' THEN 1 ELSE 0 END",
+        outStatisticFieldName: "casos_confirmados",
+        statisticType: "sum",
+      },
+      {
+        onStatisticField:
+          "CASE WHEN CLASSIFICACAO_FINAL = 'Descartado' THEN 1 ELSE 0 END",
+        outStatisticFieldName: "casos_descartados",
+        statisticType: "sum",
+      },
+    ],
+  },
+];
+---
+
+<Layout title="" >
+  <DragSearchMap
+    client:only
+    mapConfig={{
+      mapID,
+      options: {
+        filter: {
+          fieldNames: nome_campos,
+          radius: 2,
+        },
+      },
+      charts: graficos,
+    }}
+  />
+</Layout>

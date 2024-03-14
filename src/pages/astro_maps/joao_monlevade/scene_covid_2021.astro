@@ -449,36 +449,7 @@ let maps = [
         // an expression to return a 1 or a 0 for each year and sum up the
         // results to get the total.
   
-        {
-          onStatisticField: "CASE WHEN mes = 1 AND ano = 2021 THEN 1 ELSE 0 END",
-          outStatisticFieldName: "jan_2021",
-          statisticType: "sum",
-        },
-        {
-          onStatisticField: "CASE WHEN mes = 2 AND ano = 2021 THEN 1 ELSE 0 END",
-          outStatisticFieldName: "fev_2021",
-          statisticType: "sum",
-        },
-        {
-          onStatisticField: "CASE WHEN mes = 3 AND ano = 2021 THEN 1 ELSE 0 END",
-          outStatisticFieldName: "mar_2021",
-          statisticType: "sum",
-        },
-        {
-          onStatisticField: "CASE WHEN mes = 4 AND ano = 2021 THEN 1 ELSE 0 END",
-          outStatisticFieldName: "abr_2021",
-          statisticType: "sum",
-        },
-        {
-          onStatisticField: "CASE WHEN mes = 5 AND ano = 2021 THEN 1 ELSE 0 END",
-          outStatisticFieldName: "mai_2021",
-          statisticType: "sum",
-        },
-        {
-          onStatisticField: "CASE WHEN mes = 6 AND ano = 2021 THEN 1 ELSE 0 END",
-          outStatisticFieldName: "jun_2021",
-          statisticType: "sum",
-        },
+   
       ];
       const query = sceneLayerView.createQuery();
       query.geometry = sketchGeometry;

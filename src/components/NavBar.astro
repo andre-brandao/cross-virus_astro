@@ -1,4 +1,6 @@
 ---
+import { map } from "astro/zod";
+
 interface Props {
   maps: {
     label: string;
@@ -46,23 +48,57 @@ class="h-16 bg-secondary flex gap-3 justify-between"
     <!-- <a class="font-medium" href="/"> History</a> -->
     <!-- <a class="font-medium" href="#"> Settings</a> -->
   </nav>
-  <div class="flex gap-2">
+
+  <!-- burguer -->
+  <button
+    id="map-nav-toggle"
+    class="md:hidden absolute right-0"
+    hidden={maps.length == 0}
+  >
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      class="h-6 w-6 lg:hidden"
+      ><path d="M3 12h18M3 6h18M3 18h18"></path>
+    </svg>
+  </button>
+  <div
+    id="map-nav"
+    class="flex max-md:flex-col max-md:absolute max-md:right-0 max-md:top-0 z-20 max-md:bg-gray-200 gap-2 rounded-sm outline outline-red-50 p-1"
+  >
     {
       maps.map((m, i) => {
         return (
-          <>
-            <a class="font-medium hover:underline bg-300% font-bold hover:bg-gradient-to-r from-secondary via-primary to-secondary hover:text-transparent hover:bg-clip-text animate-gradient" href={m.url}>
+          <div>
+            <a
+              class="bg-300% font-bold hover:bg-gradient-to-r from-secondary via-primary to-secondary hover:text-transparent hover:bg-clip-text animate-gradient"
+              href={m.url}
+            >
               {m.label}
             </a>
             <span hidden={maps.length - 1 == i}>- </span>
-          </>
+          </div>
         );
       })
     }
   </div>
+  <script lang="js">
+    const mapNavToggle = document.getElementById("map-nav-toggle");
+    const mapNav = document.getElementById("map-nav");
+
+    mapNavToggle?.addEventListener("click", () => {
+      console.log("click");
+      mapNav.hidden = !mapNav.hidden;
+    });
+  </script>
 </header>
-
-
 
 <style lang="postcss">
 	/* TITLE */

@@ -1,0 +1,390 @@
+---
+import DragSearchMap from "../../../components/svelte/DragSearch/MapDragCharts.svelte";
+import type { ChartFiltered } from "../../../components/svelte/types.ts";
+import Layout from "./Layout.astro";
+// ID DO MAPA ARCGIS
+let mapID = "4adf2c35eede4f8b8959e63991fb8f59";
+
+// CAMPOS QUE SERÃO UTILIZADOS NO FILTRO (DISPONIVEIS NA PLANILHA DE DADOS)
+let nome_campos = [
+  "febre",
+  "comorbidad",
+  "teste",
+  "confirmado",
+  "idade",
+  "mes_ano",
+];
+
+// CONFIGURAÇÃO DOS GRAFICOS
+let graficos: ChartFiltered[] = [
+  {
+    chart: {
+      type: "bar",
+      data: {
+        labels: ["< 1", "1-14", "15-29", "30-39", "40-59", "60+"],
+        datasets: [
+          {
+            label: "Casos notificados",
+            backgroundColor: "#149dcf",
+            stack: "Stack 0",
+            data: [0, 0, 0, 0, 0, 0],
+          },
+          {
+            label: "Óbitos",
+            backgroundColor: "#ed5050",
+            stack: "Stack 0",
+            data: [0, 0, 0, 0, 0, 0],
+          },
+        ],
+      },
+      options: {
+        responsive: false,
+        legend: {
+          position: "top",
+        },
+        title: {
+          display: true,
+          text: "Casos por idade",
+        },
+        scales: {
+          xAxes: [
+            {
+              stacked: true,
+              ticks: {
+                beginAtZero: true,
+              },
+            },
+          ],
+          yAxes: [
+            {
+              stacked: true,
+            },
+          ],
+        },
+      },
+    },
+    sql_filter: [
+      {
+        onStatisticField: "CASE WHEN idade = '< 1 Ano' THEN 1 ELSE 0 END",
+        outStatisticFieldName: "age_1_under",
+        statisticType: "sum",
+      },
+      {
+        onStatisticField:
+          "CASE WHEN idade = '1 a 4 Anos' OR idade = '5 a 9 Anos' OR idade = '10 a 14 anos' THEN 1 ELSE 0 END",
+        outStatisticFieldName: "age_1_14",
+        statisticType: "sum",
+      },
+      {
+        onStatisticField:
+          "CASE WHEN idade= '15 a 19 Anos' OR idade = '20 a 29 Anos' THEN 1 ELSE 0 END",
+        outStatisticFieldName: "age_15_29",
+        statisticType: "sum",
+      },
+      {
+        onStatisticField: "CASE WHEN idade = '30 a 39 Anos' THEN 1 ELSE 0 END",
+        outStatisticFieldName: "age_30_39",
+        statisticType: "sum",
+      },
+      {
+        onStatisticField: "CASE WHEN idade LIKE '%40%' THEN 1 ELSE 0 END",
+        outStatisticFieldName: "age_40_59",
+        statisticType: "sum",
+      },
+      {
+        onStatisticField:
+          "CASE WHEN idade = 'Idosos (mais de 60 Anos)' THEN 1 ELSE 0 END",
+        outStatisticFieldName: "age_60_over",
+        statisticType: "sum",
+      },
+    ],
+  },
+
+  {
+    chart: {
+      type: "bar",
+      data: {
+        labels: [
+          "abr-20",
+          "mai-20",
+          "jun-20",
+          "jul-20",
+          "ago-20",
+          "set-20",
+          "out-20",
+          "nov-20",
+          "dez-20",
+          "jan-21",
+          "fev-21",
+          "mar-21",
+          "abr-21",
+          "mai-21",
+        ],
+        datasets: [
+          {
+            label: "Casos Notificados",
+            backgroundColor: "#149dcf",
+            stack: "Stack 0",
+            data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+          },
+          {
+            label: "Óbitos",
+            backgroundColor: "#ed5050",
+            stack: "Stack 0",
+            data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+          },
+        ],
+      },
+      options: {
+        responsive: false,
+        legend: {
+          position: "top",
+        },
+        title: {
+          display: true,
+          text: "Casos por mês/ano",
+        },
+        scales: {
+          xAxes: [
+            {
+              stacked: true,
+            },
+          ],
+          yAxes: [
+            {
+              stacked: true,
+              ticks: {
+                beginAtZero: true,
+              },
+            },
+          ],
+        },
+      },
+    },
+    sql_filter: [
+      {
+        onStatisticField: "CASE WHEN mes_ano = 'abr-20' THEN 1 ELSE 0 END",
+        outStatisticFieldName: "abr_2020",
+        statisticType: "sum",
+      },
+      {
+        onStatisticField: "CASE WHEN mes_ano = 'mai-20' THEN 1 ELSE 0 END",
+        outStatisticFieldName: "mai_2020",
+        statisticType: "sum",
+      },
+      {
+        onStatisticField: "CASE WHEN mes_ano = 'jun-20' THEN 1 ELSE 0 END",
+        outStatisticFieldName: "jun_2020",
+        statisticType: "sum",
+      },
+      {
+        onStatisticField: "CASE WHEN mes_ano = 'jul-20' THEN 1 ELSE 0 END",
+        outStatisticFieldName: "jul_2020",
+        statisticType: "sum",
+      },
+      {
+        onStatisticField: "CASE WHEN mes_ano = 'ago-20' THEN 1 ELSE 0 END",
+        outStatisticFieldName: "ago_2020",
+        statisticType: "sum",
+      },
+      {
+        onStatisticField: "CASE WHEN mes_ano = 'set-20' THEN 1 ELSE 0 END",
+        outStatisticFieldName: "set_2020",
+        statisticType: "sum",
+      },
+      {
+        onStatisticField: "CASE WHEN mes_ano = 'out-20' THEN 1 ELSE 0 END",
+        outStatisticFieldName: "out_2020",
+        statisticType: "sum",
+      },
+      {
+        onStatisticField: "CASE WHEN mes_ano = 'nov-20' THEN 1 ELSE 0 END",
+        outStatisticFieldName: "nov_2020",
+        statisticType: "sum",
+      },
+      {
+        onStatisticField: "CASE WHEN mes_ano = 'dez-20' THEN 1 ELSE 0 END",
+        outStatisticFieldName: "dez_2020",
+        statisticType: "sum",
+      },
+      {
+        onStatisticField: "CASE WHEN mes_ano = 'jan-21' THEN 1 ELSE 0 END",
+        outStatisticFieldName: "jan_2021",
+        statisticType: "sum",
+      },
+      {
+        onStatisticField: "CASE WHEN mes_ano = 'fev-21' THEN 1 ELSE 0 END",
+        outStatisticFieldName: "fev_2021",
+        statisticType: "sum",
+      },
+      {
+        onStatisticField: "CASE WHEN mes_ano = 'mar-21' THEN 1 ELSE 0 END",
+        outStatisticFieldName: "mar_2021",
+        statisticType: "sum",
+      },
+      {
+        onStatisticField: "CASE WHEN mes_ano = 'abr-21' THEN 1 ELSE 0 END",
+        outStatisticFieldName: "abr_2021",
+        statisticType: "sum",
+      },
+      {
+        onStatisticField: "CASE WHEN mes_ano = 'mai-21' THEN 1 ELSE 0 END",
+        outStatisticFieldName: "mai_2021",
+        statisticType: "sum",
+      },
+    ],
+  },
+  {
+    chart: {
+      type: "doughnut",
+      data: {
+        labels: ["Febril", "Sem Febre"],
+        datasets: [
+          {
+            backgroundColor: ["#149dcf", "#ed5050"],
+            borderColor: "rgb(255, 255, 255)",
+            borderWidth: 1,
+            data: [0, 0],
+          },
+        ],
+      },
+      options: {
+        responsive: false,
+        cutoutPercentage: 35,
+        legend: {
+          position: "bottom",
+        },
+        title: {
+          display: true,
+          text: "Comorbidades",
+        },
+      },
+    },
+    size: {
+      height: 200,
+      width: 200,
+    },
+    sql_filter: [
+      {
+        onStatisticField: "CASE WHEN febre = 'SIM' THEN 1 ELSE 0 END",
+        outStatisticFieldName: "com_febre",
+        statisticType: "sum",
+      },
+      {
+        onStatisticField: "CASE WHEN febre = 'NAO' THEN 1 ELSE 0 END",
+        outStatisticFieldName: "sem_febre",
+        statisticType: "sum",
+      },
+    ],
+  },
+  {
+    chart: {
+      type: "doughnut",
+      data: {
+        labels: ["S/Comorbidade", "C/Comorbidade"],
+        datasets: [
+          {
+            backgroundColor: ["#149dcf", "#7c2525"],
+            borderColor: "rgb(255, 255, 255)",
+            borderWidth: 1,
+            data: [0, 0],
+          },
+        ],
+      },
+      options: {
+        responsive: false,
+        cutoutPercentage: 35,
+        legend: {
+          position: "bottom",
+        },
+        title: {
+          display: true,
+          text: "Febre",
+        },
+      },
+    },
+    size: {
+    height: 200,
+    width: 200,
+  },
+    sql_filter: [
+      {
+        onStatisticField: "CASE WHEN comorbidad = 'NAO' THEN 1 ELSE 0 END",
+        outStatisticFieldName: "sem_comorbidade",
+        statisticType: "sum",
+      },
+      {
+        onStatisticField: "CASE WHEN comorbidad = 'SIM' THEN 1 ELSE 0 END",
+        outStatisticFieldName: "com_comorbidade",
+        statisticType: "sum",
+      },
+    ],
+  },
+  {
+    chart: {
+      type: "doughnut",
+      data: {
+        labels: ["RAPIDO ANTICORPO", "RAPIDO ANTIGENO", "RT-PCR"],
+        datasets: [
+          {
+            backgroundColor: ["#149dcf", "#ff0000", "#fc9220"],
+            borderColor: "rgb(255, 255, 255)",
+            borderWidth: 1,
+            data: [0, 0, 0],
+          },
+        ],
+      },
+      options: {
+        responsive: false,
+        legend: {
+          position: "bottom",
+        },
+        title: {
+          display: true,
+          text: "Teste",
+        },
+      },
+    },
+    size: {
+      height: 200,
+      width: 200,
+    },
+    sql_filter: [
+      {
+        onStatisticField:
+          "CASE WHEN teste LIKE '%ANTICORPO%' THEN 1 ELSE 0 END",
+        outStatisticFieldName: "num_anticorpo",
+        statisticType: "sum",
+      },
+      {
+        onStatisticField: "CASE WHEN teste LIKE '%ANTIGENO%' THEN 1 ELSE 0 END",
+        outStatisticFieldName: "num_antigeno",
+        statisticType: "sum",
+      },
+
+      {
+        onStatisticField: "CASE WHEN teste LIKE '%RT-PCR%' THEN 1 ELSE 0 END",
+        outStatisticFieldName: "num_pcr",
+        statisticType: "sum",
+      },
+    ],
+  },
+];
+---
+
+<Layout title="" >
+  <DragSearchMap
+    client:only
+    mapConfig={{
+      mapID,
+      options: {
+        filter: {
+          radius: 2,
+          where: "confirmado = 'OBITO'",
+          fieldNames: nome_campos,
+        },
+      },
+      charts: graficos,
+    }}
+  />
+</Layout>

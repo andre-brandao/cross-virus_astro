@@ -2,51 +2,57 @@
 import Layout from "../../layouts/MapLayout.astro";
 
 let maps = [
-{
-    title: "João Monlevade Dengue (2024)",
-    description: "",
-    image: "/heat_map_2024.png",
-    link: "/original_maps/dengue2024",
-  },
+  // {
+  //   title: "João Monlevade Dengue (2024)",
+  //   description: "HeatMap de casos de dengue em 2024",
+  //   image: "/heat_map_2024.png",
+  //   link: "/svelte_maps/joao_monlevade/map_dengue_2024",
+  // },
   {
     title: "João Monlevade COVID-19 (2020-2021)",
-    description: "Clique e segure no mapa para escanear casos e estatísticas sobre a COVID em um raio de 1KM",
+    description:
+      "Clique e segure no mapa para escanear casos e estatísticas sobre a COVID em um raio de 1KM",
     image: "/map_covid_2020_2021.png",
-    link: "/astro_maps/joao_monlevade/map_covid_2020_2021",
+    link: "/svelte_maps/joao_monlevade/map_covid_2020_2021",
   },
   {
     title: "João Monlevade COVID-19 (2021)",
     description: "Analise ruas e bairros com maior incidência de covid ",
     image: "/scene_covid_2021.png",
-    link: "/astro_maps/joao_monlevade/scene_covid_2021",
+    link: "/svelte_maps/joao_monlevade/scene_covid_2021",
   },
 
   {
     title: "João Monlevade - Linhas de Onibus",
     description: "Mapa das linhas de onibus da cidade de João Monlevade",
     image: "/map_onibus.png",
-    link: "/astro_maps/joao_monlevade/map_onibus",
+    link: "/svelte_maps/joao_monlevade/map_onibus",
   },
   {
     title: "Divinopolis Dengue (2016)",
-    description: "Analise ruas e bairros com maior incidência de dengue em 2016",
-    image:"/scene_dengue_2016.png",
-    link:"/astro_maps/divinopolis/scene_dengue_2016"
+    description:
+      "Analise ruas e bairros com maior incidência de dengue em 2016",
+    image: "/scene_dengue_2016.png",
+    link: "/svelte_maps/divinopolis/scene_dengue_2016",
   },
   {
     title: "Divinopolis Dengue (2016)",
-    description: "Clique e segure no mapa para escanear casos e estatísticas sobre a dengue em um raio de 1KM",
-    image:"/map_dengue_2016.png",
-    link:"/astro_maps/divinopolis/map_dengue_2016"
+    description:
+      "Clique e segure no mapa para escanear casos e estatísticas sobre a dengue em um raio de 1KM",
+    image: "/map_dengue_2016.png",
+    link: "/svelte_maps/divinopolis/map_dengue_2016",
   },
   {
     title: "Divinopolis Dengue (2017)",
-    description: "Clique e segure no mapa para escanear casos e estatísticas sobre a dengue em um raio de 1KM",
-    image:"/map_dengue_2017.png",
-    link:"/astro_maps/divinopolis/map_dengue_2017"
+    description:
+      "Clique e segure no mapa para escanear casos e estatísticas sobre a dengue em um raio de 1KM",
+    image: "/map_dengue_2017.png",
+    link: "/svelte_maps/divinopolis/map_dengue_2017",
+  },
+  {
+    title: "João Monlevade Cluster Dengue (2024)",
   },
 ];
-
 ---
 
 <Layout title="Maps" maps={[]}>
@@ -60,9 +66,7 @@ let maps = [
           <h1 class="text-3xl font-bold tracking-tighter sm:text-5xl">
             Nossos Mapas
           </h1>
-          <p
-            class=" md:text-xl/relaxed lg:text-base/relaxe text-white"
-          >
+          <p class="md:text-xl/relaxed lg:text-base/relaxe text-white">
             Alguns de nossos mapas.
           </p>
         </div>
@@ -100,8 +104,6 @@ let maps = [
     </div>
   </div>
 </Layout>
-
-
 
 <style lang="postcss">
 	/* TITLE */

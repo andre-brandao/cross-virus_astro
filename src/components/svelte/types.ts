@@ -82,7 +82,7 @@ export interface SceneWrapperParams {
 
   options?: {
     filter?: {
-      layerName?: string;
+      layerName: string;
       radius?: number;
       fieldNames: string[];
       where?: string;

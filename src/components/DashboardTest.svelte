@@ -35,11 +35,11 @@
     });
 
   let filter_idade: ArcgisFilter[] = [
-    {
-      onStatisticField: "CASE WHEN IDADE = '< 1 Ano' THEN 1 ELSE 0 END",
-      outStatisticFieldName: "age_1_under",
-      statisticType: "sum",
-    },
+    // {
+    //   onStatisticField: "CASE WHEN IDADE = '< 1 Ano' THEN 1 ELSE 0 END",
+    //   outStatisticFieldName: "age_1_under",
+    //   statisticType: "sum",
+    // },
     {
       onStatisticField:
         "CASE WHEN IDADE = '1 a 4 Anos' OR IDADE = '5 a 9 Anos' OR IDADE = '10 a 14 anos' THEN 1 ELSE 0 END",
@@ -105,32 +105,32 @@
       },
       sql_filter: filter_sem_epi,
     },
-    {
-      chart: {
-        type: "bar",
-        data: {
-          labels: [
-            "0 a 1",
-            "1 a 4",
-            "5 a 14",
-            "15 a 29",
-            "30 a 39",
-            "40 a 59",
-            "60 ou mais",
-          ],
-          datasets: [
-            {
-              label: "Idade",
-              backgroundColor: "#149dcf",
-              stack: "Stack 0",
-              data: [0, 0, 0, 0, 0, 0, 0],
-            },
-          ],
-        },
-      },
-      sql_filter: filter_idade,
-    },
-    // // febre
+    // {
+    //   chart: {
+    //     type: "bar",
+    //     data: {
+    //       labels: [
+    //         "0 a 1",
+    //         "1 a 4",
+    //         "5 a 14",
+    //         "15 a 29",
+    //         "30 a 39",
+    //         "40 a 59",
+    //         "60 ou mais",
+    //       ],
+    //       datasets: [
+    //         {
+    //           label: "Idade",
+    //           backgroundColor: "#149dcf",
+    //           stack: "Stack 0",
+    //           data: [0, 0, 0, 0, 0, 0, 0],
+    //         },
+    //       ],
+    //     },
+    //   },
+    //   sql_filter: filter_idade,
+    // },
+    // // // febre
     {
       chart: {
         type: "doughnut",
@@ -210,7 +210,7 @@
     <label for="map-type">Tipo de Mapa</label>
     <select name="map-type" id="map-type" bind:value={select_value}>
       <option value="drag">Arraste para buscar</option>
-      <!-- <option value="polygon">Desenhar Poligonos</option> -->
+      <option value="polygon">Desenhar Poligonos</option>
     </select>
   </div>
 </div>

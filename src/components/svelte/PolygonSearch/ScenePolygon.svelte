@@ -102,7 +102,6 @@
       let sceneLayerView: Layer;
       let bufferSize = 0;
       webscene.load().then(() => {
-
         if (!layerName) {
           console.error("No layerName found");
         }
@@ -184,6 +183,10 @@
           highlightHandle = null;
         }
       }
+      // TODO FIX THIS
+      document
+        .getElementById("clearGeometry")
+        .addEventListener("click", clearGeometry);
       function clearGeometry() {
         sketchGeometry = null;
         sketchViewModel.cancel();
@@ -226,7 +229,7 @@
       }
 
       function updateSceneLayer() {
-        console.log(sceneLayerView.view);
+        // console.log(sceneLayerView.view);
 
         const query = sceneLayerView.createQuery();
         query.geometry = sketchGeometry;
@@ -281,6 +284,8 @@
   };
 
   function dispatchQueryResults(e: CustomEvent<any>) {
+    console.log(e);
+    
     const results = e.features[0].attributes;
 
     // console.log(results);

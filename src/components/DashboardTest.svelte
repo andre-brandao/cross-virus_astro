@@ -1,6 +1,6 @@
 <script lang="ts">
   import PolygonChart from "./svelte/PolygonSearch/ScenePolygonCharts.svelte";
-  import DragChart from "./svelte/DragSearch/MapDragCharts.svelte";
+  import MapDragCharts from "./svelte/DragSearchV2/MapDragCharts.svelte";
   import type {
     ArcgisFilter,
     MapWrapperParams,
@@ -216,7 +216,7 @@
 </div>
 
 {#if select_value === "drag"}
-  <DragChart mapConfig={mapDrad} />
+  <MapDragCharts mapConfig={mapDrad} />
 {:else if select_value === "polygon"}
   <PolygonChart mapConfig={scenePoly} />
 {/if}

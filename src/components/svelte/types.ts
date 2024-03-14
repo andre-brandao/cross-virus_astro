@@ -46,6 +46,13 @@ export interface DragSearchMapParams {
       fieldNames: string[];
       where?: string;
     };
+    layer_filter?: {
+      type: string;
+      fieldName: string;
+      label:string;
+      direction?: "asc | desc";
+    }[];
+
     widgets?: {
       topRight?: (view: MapView) => Widget;
       topLeft?: (view: MapView) => Widget;
@@ -87,28 +94,27 @@ export interface SceneWrapperParams {
       bottomRight?: (view: SceneView) => Widget;
     };
   };
-
 }
 
-export interface PolygonSearchParams{
-    // map: WebMap | Map
-    mapID: string;
+export interface PolygonSearchParams {
+  // map: WebMap | Map
+  mapID: string;
 
-    options?: {
-      filter?: {
-        radius?: number;
-        sql_filter: ArcgisFilter[];
-        layerName?: string;
-        fieldNames: string[];
-        where?: string;
-      };
-      widgets?: {
-        topRight?: (view: SceneView) => Widget;
-        topLeft?: (view: SceneView) => Widget;
-        bottomLeft?: (view: SceneView) => Widget;
-        bottomRight?: (view: SceneView) => Widget;
-      };
+  options?: {
+    filter?: {
+      radius?: number;
+      sql_filter: ArcgisFilter[];
+      layerName?: string;
+      fieldNames: string[];
+      where?: string;
     };
+    widgets?: {
+      topRight?: (view: SceneView) => Widget;
+      topLeft?: (view: SceneView) => Widget;
+      bottomLeft?: (view: SceneView) => Widget;
+      bottomRight?: (view: SceneView) => Widget;
+    };
+  };
 }
 
 export interface ArcgisFilter {

@@ -1,66 +1,64 @@
 ---
-// import SvelteMap from "../components/svelte/MapDrag.svelte";
-import MapWrapper from "../components/DashboardTest.svelte";
-
-import Layout from "../layouts/MapLayout.astro";
-
-// ID DO MAPA ARCGIS
-let mapID = "f64a8f67e8954052a1136b2dd197d566";
-
-let sql_filter = [
-  {
-    onStatisticField: "CASE WHEN sexo = 'F' THEN 1 ELSE 0 END",
-    outStatisticFieldName: "feminino",
-    statisticType: "sum",
-  },
-  {
-    onStatisticField: "CASE WHEN idade LIKE  '%1 Ano%' THEN 1 ELSE 0 END",
-    outStatisticFieldName: "menor1",
-    statisticType: "sum",
-  },
-  {
-    onStatisticField: "CASE WHEN idade LIKE  '%1 a 4%'  THEN 1 ELSE 0 END",
-    outStatisticFieldName: "de_1_4_anos",
-    statisticType: "sum",
-  },
-  {
-    onStatisticField: "CASE WHEN idade LIKE  '%5 a 9%'  THEN 1 ELSE 0 END",
-    outStatisticFieldName: "de_5_9_anos",
-    statisticType: "sum",
-  },
-  {
-    onStatisticField: "CASE WHEN idade LIKE  '%10 a 14%'  THEN 1 ELSE 0 END",
-    outStatisticFieldName: "de_10_14_anos",
-    statisticType: "sum",
-  },
-  {
-    onStatisticField: "CASE WHEN idade LIKE  '%15 a 19%'  THEN 1 ELSE 0 END",
-    outStatisticFieldName: "de_15_19_anos",
-    statisticType: "sum",
-  },
-  {
-    onStatisticField: "CASE WHEN idade LIKE  '%20 a 29%'  THEN 1 ELSE 0 END",
-    outStatisticFieldName: "de_20_29_anos",
-    statisticType: "sum",
-  },
-  {
-    onStatisticField: "CASE WHEN idade LIKE  '%30 a 39%'  THEN 1 ELSE 0 END",
-    outStatisticFieldName: "de_30_39_anos",
-    statisticType: "sum",
-  },
-  {
-    onStatisticField: "CASE WHEN idade LIKE  '%40 a 49%'  THEN 1 ELSE 0 END",
-    outStatisticFieldName: "de_40_49_anos",
-    statisticType: "sum",
-  },
-  {
-    onStatisticField: "CASE WHEN idade LIKE  '%50 a 59%'  THEN 1 ELSE 0 END",
-    outStatisticFieldName: "de_50_59_anos",
-    statisticType: "sum",
-  },
-];
+import Hero from "../components/landing_page/Hero.astro";
+import Pricing from "../components/landing_page/Pricing.astro";
+import Layout from "../layouts/Layout.astro";
+import Entrevistas from "../components/landing_page/Entrevistas.astro";
+import Patrocinadores from "../components/landing_page/Patrocinadores.astro";
+import Footer from "../components/landing_page/Footer.astro";
+import Noticias from "../components/landing_page/Noticias.astro";
+import Artigos from "../components/landing_page/Artigos.astro";
 ---
 
-<Layout title="Mapa" maps={[]}>
-  <MapWrapper client:only />
+<Layout title="Home"></Layout>
+  <div
+    class="container h-full mx-auto flex flex-col justify-center items-center"
+  >
+    <nav
+      class="flex justify-between w-full m-2 pr-5 fixed top-0 right-0 left-0"
+    >
+      <p></p>
+   
+      <a href="/login">
+
+        <button class="circle-button text-white bg-secondary hover:bg-primary shadow-sm hover:shadow-2xl hover:shadow-secondary">
+          Login
+        </button>
+      </a>
+
+      <style>
+        .circle-button {
+          width: 50px;
+          height: 50px;
+          border-radius: 50%;
+          border: none;
+          cursor: pointer;
+          transition: background-color 0.3s;
+        }
+      </style>
+    </nav>
+    <div class="space-y-10 text-center flex flex-col items-center">
+      <Hero />
+
+      <!-- <Part1 /> -->
+
+      <!-- <LeftCard /> -->
+
+      <Entrevistas />
+      <Artigos />
+      <Noticias />
+
+      <Pricing />
+
+      <Patrocinadores />
+
+      <Footer />
+
+      <!-- <ContinueLinks /> -->
+      <!-- <RightCard /> -->
+
+      <!-- <FeatureList /> -->
+
+      <!-- <FreeTrial /> -->
+    </div>
+  </div>
 </Layout>

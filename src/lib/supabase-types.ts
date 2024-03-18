@@ -9,23 +9,47 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      municipio: {
+      info_user: {
         Row: {
+          auth_id: string
+          CodMun: number
           created_at: string
+          email: string
           id: number
-          nome: string
+          nome: string | null
         }
         Insert: {
+          auth_id: string
+          CodMun: number
           created_at?: string
+          email: string
           id?: number
-          nome: string
+          nome?: string | null
         }
         Update: {
+          auth_id?: string
+          CodMun?: number
           created_at?: string
+          email?: string
           id?: number
-          nome?: string
+          nome?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "public_info_user_auth_id_fkey"
+            columns: ["auth_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "public_info_user_CodMun_fkey"
+            columns: ["CodMun"]
+            isOneToOne: false
+            referencedRelation: "municipios"
+            referencedColumns: ["CodMun"]
+          }
+        ]
       }
       municipios: {
         Row: {

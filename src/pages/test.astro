@@ -94,14 +94,91 @@ let graficos = [
   },
 ];
 
+let feature_table = {
+  title: "Casos de Dengue",
+  fields: [
+    {
+      // Autocast to FieldColumnTemplate.
+      type: "field",
+      fieldName: "SEMANA_EPI",
+      label: "Semana epidemiologica",
+      direction: "asc",
+    },
+    {
+      type: "field",
+      fieldName: "DT_NASC",
+      label: "Data nascimento",
+    },
+    {
+      type: "field",
+      fieldName: "IDADE",
+      label: "Idade",
+    },
+    {
+      type: "field",
+      fieldName: "CS_SEXO",
+      label: "Sexo",
+    },
+    {
+      type: "field",
+      fieldName: "NM_BAIRRO",
+      label: "Bairro",
+    },
+  ],
+};
+let layer_filter = [
+  {
+    label: "Semana Epi 1",
+    where: "SEMANA_EPI = 1",
+  },
+  {
+    label: "Semana Epi 2",
+    where: "SEMANA_EPI = 2",
+  },
+  {
+    label: "Semana Epi 3",
+    where: "SEMANA_EPI = 3",
+  },
+  {
+    label: "Semana Epi 4",
+    where: "SEMANA_EPI = 4",
+  },
+  {
+    label: "Semana Epi 5",
+    where: "SEMANA_EPI = 5",
+  },
+  {
+    label: "Semana Epi 6",
+    where: "SEMANA_EPI = 6",
+  },
+  {
+    label: "Semana Epi 7",
+    where: "SEMANA_EPI = 7",
+  },
+  {
+    label: "Semana Epi 8",
+    where: "SEMANA_EPI = 8",
+  },
+  {
+    label: "Semana Epi 9",
+    where: "SEMANA_EPI = 9",
+  },
+  {
+    label: "Semana Epi 10",
+    where: "SEMANA_EPI = 10",
+  },
+];
+
 let dash_config = {
   title: "Dengue 2024 João Monlevade",
   map_id: "0f9670330f6d4cdda508fd926e59f0c8",
   scene_id: "ffcd919361a342ce85a28f6c48dd02ac",
   layerName: "dengue24ok",
   fieldNames: ["SEMANA_EPI", "IDADE", "FEBRE"],
-  charts: graficos,
 
+  charts: graficos,
+  feature_table: feature_table,
+  layer_filter: layer_filter,
   other_maps: [
     {
       label: "HeatMap",

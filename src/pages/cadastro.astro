@@ -38,20 +38,21 @@ if (Astro.request.method === "POST") {
     //   return new Response("Email and password are required", { status: 400 });
     // }
 
-    if (!email) {
+    if (typeof email !== "string") {
       erros.email += "O email é obrigatório";
     }
 
-    if (!password || password.length < 6) {
+    if (typeof password !== "string" || password.length < 6) {
       erros.password += "A senha deve ter no mínimo 6 caracteres";
     }
-    if (!municipio) {
+    if (typeof municipio !== "number" || !municipio) {
       erros.municipio += "O municipio é obrigatório";
     }
     const hasErrors = Object.values(erros).some((msg) => msg);
 
     if (!hasErrors) {
       console.log("valid");
+
       const { error } = await supabase.auth.signUp({
         email,
         password,

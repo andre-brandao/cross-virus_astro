@@ -36,7 +36,7 @@ export interface MapWrapperParams {
     feature_table?: {
       title: string;
       fields: {
-        type: "field";
+        type: string;
         fieldName: string;
         label: string;
         direction?: "asc" | "desc";

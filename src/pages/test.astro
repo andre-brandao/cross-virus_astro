@@ -1,66 +1,118 @@
 ---
-// import SvelteMap from "../components/svelte/MapDrag.svelte";
-import MapWrapper from "../components/DashboardTest.svelte";
+import Dashboard from "../components/svelte-v2/Dashboard.svelte";
+import { type ArcgisFilter } from "../components/svelte-v2/types";
+import Layout from "../layouts/Layout.astro";
+let filter_sem_epi: ArcgisFilter[] = Array(10)
+  .fill(undefined)
+  .map((_, i) => {
+    const semana = i + 1;
+    return {
+      onStatisticField: `CASE WHEN SEMANA_EPI = ${semana} THEN 1 ELSE 0 END`,
+      outStatisticFieldName: "sem_epi" + semana,
+      statisticType: "sum",
+    };
+  });
 
-import Layout from "../layouts/MapLayout.astro";
+let graficos = [
+  {
+    chart: {
+      type: "bar",
+      data: {
+        labels: [
+          "sem_epi0",
+          "sem_epi1",
+          "sem_epi2",
+          "sem_epi3",
+          "sem_epi4",
+          "sem_epi5",
+          "sem_epi6",
+          "sem_epi7",
+          "sem_epi8",
+          "sem_epi9",
+        ],
+        datasets: [
+          {
+            label: "Casos Notificados",
+            backgroundColor: "#149dcf",
+            stack: "Stack 0",
+            data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+          },
+        ],
+      },
+      options: {
+        responsive: false,
+        legend: {
+          position: "top",
+        },
+      },
+    },
+    sql_filter: filter_sem_epi,
+  },
 
-// ID DO MAPA ARCGIS
-let mapID = "f64a8f67e8954052a1136b2dd197d566";
-
-let sql_filter = [
   {
-    onStatisticField: "CASE WHEN sexo = 'F' THEN 1 ELSE 0 END",
-    outStatisticFieldName: "feminino",
-    statisticType: "sum",
-  },
-  {
-    onStatisticField: "CASE WHEN idade LIKE  '%1 Ano%' THEN 1 ELSE 0 END",
-    outStatisticFieldName: "menor1",
-    statisticType: "sum",
-  },
-  {
-    onStatisticField: "CASE WHEN idade LIKE  '%1 a 4%'  THEN 1 ELSE 0 END",
-    outStatisticFieldName: "de_1_4_anos",
-    statisticType: "sum",
-  },
-  {
-    onStatisticField: "CASE WHEN idade LIKE  '%5 a 9%'  THEN 1 ELSE 0 END",
-    outStatisticFieldName: "de_5_9_anos",
-    statisticType: "sum",
-  },
-  {
-    onStatisticField: "CASE WHEN idade LIKE  '%10 a 14%'  THEN 1 ELSE 0 END",
-    outStatisticFieldName: "de_10_14_anos",
-    statisticType: "sum",
-  },
-  {
-    onStatisticField: "CASE WHEN idade LIKE  '%15 a 19%'  THEN 1 ELSE 0 END",
-    outStatisticFieldName: "de_15_19_anos",
-    statisticType: "sum",
-  },
-  {
-    onStatisticField: "CASE WHEN idade LIKE  '%20 a 29%'  THEN 1 ELSE 0 END",
-    outStatisticFieldName: "de_20_29_anos",
-    statisticType: "sum",
-  },
-  {
-    onStatisticField: "CASE WHEN idade LIKE  '%30 a 39%'  THEN 1 ELSE 0 END",
-    outStatisticFieldName: "de_30_39_anos",
-    statisticType: "sum",
-  },
-  {
-    onStatisticField: "CASE WHEN idade LIKE  '%40 a 49%'  THEN 1 ELSE 0 END",
-    outStatisticFieldName: "de_40_49_anos",
-    statisticType: "sum",
-  },
-  {
-    onStatisticField: "CASE WHEN idade LIKE  '%50 a 59%'  THEN 1 ELSE 0 END",
-    outStatisticFieldName: "de_50_59_anos",
-    statisticType: "sum",
+    chart: {
+      type: "doughnut",
+      data: {
+        labels: ["FEBRE = 1", "FEBRE = 2"],
+        datasets: [
+          {
+            backgroundColor: ["#149dcf", "#ed5050"],
+            borderColor: "rgb(255, 255, 255)",
+            borderWidth: 1,
+            data: [0, 0],
+          },
+        ],
+      },
+      options: {
+        responsive: false,
+        cutoutPercentage: 35,
+        legend: {
+          position: "bottom",
+        },
+        title: {
+          display: true,
+          text: "Comorbidades",
+        },
+      },
+    },
+    sql_filter: [
+      {
+        onStatisticField: "CASE WHEN FEBRE = 1 THEN 1 ELSE 0 END",
+        outStatisticFieldName: "febre_sim",
+        statisticType: "sum",
+      },
+      {
+        onStatisticField: "CASE WHEN FEBRE = 2 THEN 1 ELSE 0 END",
+        outStatisticFieldName: "febre_nao",
+        statisticType: "sum",
+      },
+    ],
+    size: {
+      width: 200,
+      height: 200,
+    },
   },
 ];
+
+let dash_config = {
+  title: "Dengue 2024 João Monlevade",
+  map_id: "0f9670330f6d4cdda508fd926e59f0c8",
+  scene_id: "ffcd919361a342ce85a28f6c48dd02ac",
+  layerName: "dengue24ok",
+  fieldNames: ["SEMANA_EPI", "IDADE", "FEBRE"],
+  charts: graficos,
+
+  other_maps: [
+    {
+      label: "HeatMap",
+      config: {
+        mapID: "5c91a9d3542c4082aa28df162433de15",
+      },
+    },
+  ],
+};
 ---
 
-<Layout title="Mapa" maps={[]}>
-  <MapWrapper client:only />
+<Layout title="Dashboard">
+  <Dashboard client:only dashboard_config={dash_config} />
 </Layout>

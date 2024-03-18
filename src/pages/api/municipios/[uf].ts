@@ -1,7 +1,7 @@
 import { supabase } from "../../../lib/supabase";
 export const prerender = false;
 // Outputs: /builtwith.json
-export async function GET({ params, request }) {
+export async function GET({ params, request }: any) {
   const uf_id = params.uf;
 
   const { data: municipios, error } = await supabase

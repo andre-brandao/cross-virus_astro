@@ -1,5 +1,79 @@
 ---
 import Layout from "../layouts/MapLayout.astro";
+import SelectMunicipio from "../components/cadastro/select_municipio.svelte";
+import { supabase } from "../lib/supabase";
+
+const { cookies, redirect } = Astro;
+
+const accessToken = cookies.get("sb-access-token");
+const refreshToken = cookies.get("sb-refresh-token");
+
+if (accessToken && refreshToken) {
+  return redirect("/test");
+}
+
+const erros = { email: "", password: "", municipio: "" };
+
+let form = {
+  email: "",
+  password: "",
+};
+
+if (Astro.request.method === "POST") {
+  try {
+    const formData = await Astro.request.formData();
+
+    const email = formData.get("email")?.toString();
+    const password = formData.get("password")?.toString();
+    const municipio = Number(formData.get("municipio"));
+    const estado = formData.get("estado")?.toString();
+
+    console.log({ email, password, municipio, estado });
+    form = {
+      email,
+      password,
+    };
+
+    // if (!email || !password || !municipio) {
+    //   return new Response("Email and password are required", { status: 400 });
+    // }
+
+    if (!email) {
+      erros.email += "O email é obrigatório";
+    }
+
+    if (!password || password.length < 6) {
+      erros.password += "A senha deve ter no mínimo 6 caracteres";
+    }
+    if (!municipio) {
+      erros.municipio += "O municipio é obrigatório";
+    }
+    const hasErrors = Object.values(erros).some((msg) => msg);
+
+    if (!hasErrors) {
+      console.log("valid");
+      const { error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            municipio,
+          },
+        },
+      });
+
+      if (error) {
+        console.error(error);
+        erros.password += error.message;
+        // return new Response(error.message, { status: 500 });
+      } else {
+        return redirect("/login");
+      }
+    }
+  } catch (err) {
+    console.warn(err);
+  }
+}
 ---
 
 <Layout title="Cadastro Crossvirus" maps={[]}>
@@ -27,22 +101,34 @@ import Layout from "../layouts/MapLayout.astro";
           >
             Dados para cadastro
           </h1>
-          <form class="space-y-4 md:space-y-6" action="#">
-            <div>
+          <form class="space-y-4 md:space-y-6" method="post">
+            <!-- <div>
               <label
                 for="municipio"
                 class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-                >Seu municipio:</label
               >
-              <input
-                type="email"
+                Municipio
+              </label>
+              <select
                 name="municipio"
                 id="municipio"
-                class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary focus:border-primary block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                placeholder="Belo Horizonte"
-                required=""
-              />
-            </div>
+                class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+              >
+                {
+                  municipios?.map((municipio) => (
+                    <option value={municipio.nome}>{municipio.nome}</option>
+                  ))
+                }
+              </select>
+            </div> -->
+            <SelectMunicipio client:only />
+            {
+              erros.municipio && (
+                <p class="text-sm text-red-500 dark:text-red-400">
+                  {erros.municipio}
+                </p>
+              )
+            }
             <div>
               <label
                 for="email"
@@ -52,12 +138,20 @@ import Layout from "../layouts/MapLayout.astro";
               <input
                 type="email"
                 name="email"
+                value={form.email}
                 id="email"
                 class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary focus:border-primary block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                 placeholder="nome@company.com"
                 required=""
               />
             </div>
+            {
+              erros.email && (
+                <p class="text-sm text-red-500 dark:text-red-400">
+                  {erros.email}
+                </p>
+              )
+            }
             <div>
               <label
                 for="password"
@@ -68,12 +162,22 @@ import Layout from "../layouts/MapLayout.astro";
                 type="password"
                 name="password"
                 id="password"
+                value={form.password}
                 placeholder="********"
                 class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                 required=""
               />
             </div>
-            <!-- <div class="flex items-center justify-between">
+            {
+              erros.password && (
+                <p class="text-sm text-red-500 dark:text-red-400">
+                  {erros.password}
+                </p>
+              )
+            }
+
+            <div>
+              <!-- <div class="flex items-center justify-between">
               <div class="flex items-start">
                 <div class="flex items-center h-5">
                   <input
@@ -96,18 +200,19 @@ import Layout from "../layouts/MapLayout.astro";
                 >Forgot password?</a
               >
             </div> -->
-            <button
-              type="submit"
-              class="w-full text-white bg-secondary hover:bg-primary focus:ring-4 focus:outline-none focus:ring-primary font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-primary dark:hover:bg-primary dark:focus:ring-primary"
-              >Cadastrar</button
-            >
-            <p class="text-sm font-light text-gray-500 dark:text-gray-400">
-              Já possui uma conta? Faça <a
-                href="/login"
-                class="font-medium text-primary hover:underline dark:text-primary"
-                >Login!</a
+              <button
+                type="submit"
+                class="w-full text-white bg-secondary hover:bg-primary focus:ring-4 focus:outline-none focus:ring-primary font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-primary dark:hover:bg-primary dark:focus:ring-primary"
+                >Cadastrar</button
               >
-            </p>
+              <p class="text-sm font-light text-gray-500 dark:text-gray-400">
+                Já possui uma conta? Faça <a
+                  href="/login"
+                  class="font-medium text-primary hover:underline dark:text-primary"
+                  >Login!</a
+                >
+              </p>
+            </div>
           </form>
         </div>
       </div>

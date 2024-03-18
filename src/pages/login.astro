@@ -1,65 +1,133 @@
 ---
 import Layout from "../layouts/MapLayout.astro";
+import { supabase } from "../lib/supabase";
+
+const { cookies, redirect } = Astro;
+
+const accessToken = cookies.get("sb-access-token");
+const refreshToken = cookies.get("sb-refresh-token");
+
+if (accessToken && refreshToken) {
+  return redirect("/test");
+}
+
+let erros = {
+  email: "",
+  password: "",
+};
+
+if (Astro.request.method === "POST") {
+  try {
+    const formData = await Astro.request.formData();
+
+    const email = formData.get("email")?.toString();
+    const password = formData.get("password")?.toString();
+
+    if (!email) {
+      erros.email = "Email é obrigatório";
+    }
+    if (!password) {
+      erros.password = "Senha é obrigatória";
+    }
+
+    const hasErrors = Object.values(erros).some((msg) => msg);
+
+    if (!hasErrors) {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (error) {
+        erros.password += error.message;
+      } else {
+        const { access_token, refresh_token } = data.session;
+        cookies.set("sb-access-token", access_token, {
+          path: "/",
+        });
+        cookies.set("sb-refresh-token", refresh_token, {
+          path: "/",
+        });
+        return redirect("/test");
+      }
+    }
+  } catch (err) {
+    console.error(err);
+  }
+}
 ---
 
 <Layout title="Cadastro Crossvirus" maps={[]}>
-
-<section class="bg-gray-50 dark:bg-gray-900">
-  <div
-    class="flex flex-col items-center justify-center px-6 py-8 mx-auto md:h-[90vh] lg:py-0"
-  >
-    <a
-      href="#"
-      class="flex items-center mb-6 text-2xl font-semibold text-gray-900 dark:text-white"
+  <section class="bg-gray-50 dark:bg-gray-900">
+    <div
+      class="flex flex-col items-center justify-center px-6 py-8 mx-auto md:h-[90vh] lg:py-0"
     >
-      <!-- <img
+      <a
+        href="#"
+        class="flex items-center mb-6 text-2xl font-semibold text-gray-900 dark:text-white"
+      >
+        <!-- <img
         class="w-8 h-8 mr-2"
         src=""
         alt="logo"
       /> -->
-      Crossvirus
-    </a>
-    <div
-      class="w-full bg-white rounded-lg shadow dark:border md:mt-0 sm:max-w-md xl:p-0 dark:bg-gray-800 dark:border-gray-700"
-    >
-      <div class="p-6 space-y-4 md:space-y-6 sm:p-8">
-        <h1
-          class="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl dark:text-white"
-        >
-          Faça login na sua conta
-        </h1>
-        <form class="space-y-4 md:space-y-6" action="#">
-          <div>
-            <label
-              for="email"
-              class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-              >Seu email:</label
-            >
-            <input
-              type="email"
-              name="email"
-              id="email"
-              class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary focus:border-primary block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-              placeholder="nome@company.com"
-              required=""
-            />
-          </div>
-          <div>
-            <label
-              for="password"
-              class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-              >Senha</label
-            >
-            <input
-              type="password"
-              name="password"
-              id="password"
-              placeholder="********"
-              class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-              required=""
-            />
-          </div>
-          <!-- <div class="flex items-center justify-between">
+        Crossvirus
+      </a>
+      <div
+        class="w-full bg-white rounded-lg shadow dark:border md:mt-0 sm:max-w-md xl:p-0 dark:bg-gray-800 dark:border-gray-700"
+      >
+        <div class="p-6 space-y-4 md:space-y-6 sm:p-8">
+          <h1
+            class="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl dark:text-white"
+          >
+            Faça login na sua conta
+          </h1>
+          <form class="space-y-4 md:space-y-6" method="post">
+            <div>
+              <label
+                for="email"
+                class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                >Seu email:</label
+              >
+              <input
+                type="email"
+                name="email"
+                id="email"
+                class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary focus:border-primary block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                placeholder="nome@company.com"
+                required=""
+              />
+            </div>
+            {
+              erros.email && (
+                <p class="text-sm font-medium text-red-500 dark:text-red-400">
+                  {erros.email}
+                </p>
+              )
+            }
+            <div>
+              <label
+                for="password"
+                class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                >Senha</label
+              >
+              <input
+                type="password"
+                name="password"
+                id="password"
+                placeholder="********"
+                class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                required=""
+              />
+            </div>
+            {
+              erros.password && (
+                <p class="text-sm font-medium text-red-500 dark:text-red-400">
+                  {erros.password}
+                </p>
+              )
+            }
+            <!-- <div class="flex items-center justify-between">
             <div class="flex items-start">
               <div class="flex items-center h-5">
                 <input
@@ -82,23 +150,22 @@ import Layout from "../layouts/MapLayout.astro";
               >Forgot password?</a
             >
           </div> -->
-          <button
-            type="submit"
-            class="w-full text-white bg-secondary hover:bg-primary focus:ring-4 focus:outline-none focus:ring-primary font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-primary dark:hover:bg-primary dark:focus:ring-primary"
-            >Login</button
-          >
-          <p class="text-sm font-light text-gray-500 dark:text-gray-400">
-            Não possui uma conta, <a
-              href="/cadastro"
-              class="font-medium text-primary hover:underline dark:text-primary"
-              >cadastre-se</a
+            <button
+              type="submit"
+              class="w-full text-white bg-secondary hover:bg-primary focus:ring-4 focus:outline-none focus:ring-primary font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-primary dark:hover:bg-primary dark:focus:ring-primary"
+              >Login</button
             >
-            ?
-          </p>
-        </form>
+            <p class="text-sm font-light text-gray-500 dark:text-gray-400">
+              Não possui uma conta, <a
+                href="/cadastro"
+                class="font-medium text-primary hover:underline dark:text-primary"
+                >cadastre-se</a
+              >
+              ?
+            </p>
+          </form>
+        </div>
       </div>
     </div>
-  </div>
-</section>
-
+  </section>
 </Layout>

@@ -2,6 +2,7 @@
 import Layout from "../layouts/MapLayout.astro";
 import SelectMunicipio from "../components/cadastro/select_municipio.svelte";
 import { supabase } from "../lib/supabase";
+import { string } from "astro/zod";
 
 const { cookies, redirect } = Astro;
 
@@ -30,8 +31,8 @@ if (Astro.request.method === "POST") {
 
     console.log({ email, password, municipio, estado });
     form = {
-      email,
-      password,
+      email: email as string,
+      password: password as string,
     };
 
     // if (!email || !password || !municipio) {
@@ -54,8 +55,8 @@ if (Astro.request.method === "POST") {
       console.log("valid");
 
       const { error } = await supabase.auth.signUp({
-        email,
-        password,
+        email: email as string,
+        password: password as string,
         options: {
           data: {
             municipio,

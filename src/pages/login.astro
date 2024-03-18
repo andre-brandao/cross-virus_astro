@@ -34,8 +34,8 @@ if (Astro.request.method === "POST") {
 
     if (!hasErrors) {
       const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
+        email: email as string,
+        password: password as string,
       });
 
       if (error) {

@@ -1,0 +1,112 @@
+---
+interface Props {
+  title?: string;
+}
+
+const { title } = Astro.props;
+
+import Layout from "../../layouts/Layout.astro";
+import { wpp_link } from "../../lib/links";
+import { supabase } from "../../lib/supabase";
+
+const { cookies, redirect } = Astro;
+
+const accessToken = cookies.get("sb-access-token");
+const refreshToken = cookies.get("sb-refresh-token");
+
+if (!accessToken || !refreshToken) {
+  return redirect("/signin");
+}
+
+const { data: data_auth, error: error_auth } = await supabase.auth.setSession({
+  refresh_token: refreshToken.value,
+  access_token: accessToken.value,
+});
+
+if (error_auth) {
+  cookies.delete("sb-access-token", {
+    path: "/",
+  });
+  cookies.delete("sb-refresh-token", {
+    path: "/",
+  });
+
+  return redirect("/login");
+}
+
+// console.log(data_auth.user?.user_metadata.municipio);
+const municipio = data_auth.user?.user_metadata.municipio;
+
+const { data: info_municipio, error: error_municipio } = await supabase
+  .from("municipios")
+  .select("*")
+  .eq("CodMun", municipio)
+  .single();
+
+if (error_municipio) {
+  console.warn("Error fetching municipio", error_municipio);
+}
+
+let maps = [];
+---
+
+<Layout title="">
+  <main class="flex justify-center flex-col items-center">
+    <nav
+      class="sticky top-0 z-50 w-4/5 bg-white rounded-xl shadow-md overflow-hidden m-2"
+    >
+      <div class="p-8 flex items-center justify-between text-lg">
+        <div>
+          <span> Central Crossvirus de </span>
+
+          <span class="uppercase tracking-wide text-secondary font-semibold">
+            {info_municipio?.nome}
+          </span>
+        </div>
+        <span class="mt-2 text-gray-500">Estado: {info_municipio?.UF}</span>
+        <span class="mt-2 text-gray-500">Código: {info_municipio?.CodMun}</span>
+        <span class="mt-2 text-gray-500">
+          População Estimada 2021: {info_municipio?.pop_est}
+        </span>
+        <span class="mt-2 text-gray-500"
+          >Faixa Pop: {info_municipio?.faixa_pop}</span
+        >
+
+        <span>
+          {data_auth.user?.email}
+        </span>
+      </div>
+    </nav>
+
+    {
+      maps.length === 0 && (
+        <div class="flex items-center justify-between w-full h-5/6 flex-col">
+          <div class="text-2xl font-bold text-gray-500 text-center py-4">
+            <p>Nenhum Mapa Disponivel para essa cidade.</p>
+            <p class="text-black underline">
+              Confira nossos mapas disponiveis:
+            </p>
+          </div>
+
+          <div class="w-full h-[50vh]  flex items-center justify-center">
+            <iframe
+              width="90%"
+              height="100%"
+              class=" border border-primary rounded"
+              src="/maps/embed"
+              frameborder="0"
+            />
+          </div>
+          <div class="py-4">
+            <a
+              class="inline-block px-6 py-2 text-xs font-medium leading-6 text-center text-white uppercase transition bg-blue-600 rounded shadow ripple hover:shadow-lg hover:bg-blue-800 focus:outline-none"
+              href={wpp_link}
+            >
+              Faça a solicitação de um mapa para sua cidade.
+            </a>
+          </div>
+        </div>
+      )
+    }
+  </main>
+</Layout>

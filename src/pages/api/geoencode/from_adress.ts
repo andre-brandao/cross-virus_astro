@@ -21,7 +21,7 @@ export const POST: APIRoute = async ({ request }) => {
     skip_empty_lines: true,
   });
 
-  const client = new Client({});
+  const maps_client = new Client({});
 
   // Geocodifica cada endereço e armazena o resultado
   for (const record of records) {
@@ -29,7 +29,7 @@ export const POST: APIRoute = async ({ request }) => {
 
     if (address) {
       console.log(address);
-      const result = await client.geocode({
+      const result = await maps_client.geocode({
         params: {
           address: address,
           key: import.meta.env.GOOGLE_MAPS_KEY,

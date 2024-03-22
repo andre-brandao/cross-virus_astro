@@ -9,56 +9,59 @@ import Noticias from "../components/landing_page/Noticias.astro";
 import Artigos from "../components/landing_page/Artigos.astro";
 ---
 
-<Layout title="Home"></Layout>
-  <div
-    class="container h-full mx-auto flex flex-col justify-center items-center"
+<Layout title="Home" />
+<div class="container h-full mx-auto flex flex-col justify-center items-center">
+  <nav
+    class="flex justify-between w-full m-2 pr-5 fixed top-0 right-0 left-0 z-50"
   >
-    <nav
-      class="flex justify-between w-full m-2 pr-5 fixed top-0 right-0 left-0"
-    >
-      <p></p>
-   
-      <a href="/login">
+    <a href="/maps">
+      <button
+        class="circle-button hover:text-white bg-primary hover:bg-secondary shadow-sm hover:shadow-2xl hover:shadow-primary"
+      >
+        Mapas
+      </button>
+    </a>
+    <a href="/login">
+      <button
+        class="circle-button text-white hover:text-black bg-secondary hover:bg-primary shadow-sm hover:shadow-2xl hover:shadow-secondary"
+      >
+        Login
+      </button>
+    </a>
 
-        <button class="circle-button text-white bg-secondary hover:bg-primary shadow-sm hover:shadow-2xl hover:shadow-secondary">
-          Login
-        </button>
-      </a>
+    <style>
+      .circle-button {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        border: none;
+        cursor: pointer;
+        transition: background-color 0.3s;
+      }
+    </style>
+  </nav>
+  <div class="space-y-10 text-center flex flex-col items-center">
+    <Hero />
 
-      <style>
-        .circle-button {
-          width: 50px;
-          height: 50px;
-          border-radius: 50%;
-          border: none;
-          cursor: pointer;
-          transition: background-color 0.3s;
-        }
-      </style>
-    </nav>
-    <div class="space-y-10 text-center flex flex-col items-center">
-      <Hero />
+    <!-- <Part1 /> -->
 
-      <!-- <Part1 /> -->
+    <!-- <LeftCard /> -->
 
-      <!-- <LeftCard /> -->
+    <Entrevistas />
+    <Artigos />
+    <Noticias />
 
-      <Entrevistas />
-      <Artigos />
-      <Noticias />
+    <Pricing />
 
-      <Pricing />
+    <Patrocinadores />
 
-      <Patrocinadores />
+    <Footer />
 
-      <Footer />
+    <!-- <ContinueLinks /> -->
+    <!-- <RightCard /> -->
 
-      <!-- <ContinueLinks /> -->
-      <!-- <RightCard /> -->
+    <!-- <FeatureList /> -->
 
-      <!-- <FeatureList /> -->
-
-      <!-- <FreeTrial /> -->
-    </div>
+    <!-- <FreeTrial /> -->
   </div>
-</Layout>
+</div>

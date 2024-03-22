@@ -1,8 +1,130 @@
 ---
 import Layout from "../../layouts/AuthLayout.astro";
-import CsvUp from "./csv_up.svelte";
+import CsvUp from "./csvUpload.svelte";
+
+import { parse } from "csv-parse/sync";
+import { stringify } from "csv-stringify/sync";
+import { Client } from "@googlemaps/google-maps-services-js";
+import { supabase } from "../../lib/supabase";
+
+const { cookies, redirect } = Astro;
+
+const accessToken = cookies.get("sb-access-token");
+const refreshToken = cookies.get("sb-refresh-token");
+
+if (!accessToken || !refreshToken) {
+  return redirect("/login");
+}
+
+const { data: data_auth, error } = await supabase.auth.setSession({
+  refresh_token: refreshToken.value,
+  access_token: accessToken.value,
+});
+
+if (error) {
+  cookies.delete("sb-access-token", {
+    path: "/",
+  });
+  cookies.delete("sb-refresh-token", {
+    path: "/",
+  });
+
+  return redirect("/login");
+}
+
+let error_csv = null;
+if (Astro.request.method === "POST") {
+  const { request } = Astro;
+  const formData = await request.formData();
+  const file = formData.get("csv");
+  const addressField = formData.get("field")?.toString();
+  const fileName = formData.get("fileName")?.toString();
+
+  if (!file || !(file instanceof File) || typeof addressField !== "string") {
+    return new Response("Arquivo ou campo de endereço inválido", {
+      status: 400,
+    });
+  }
+  console.log(file, addressField);
+
+  const csvContent = await file.text();
+  const records = parse(csvContent, {
+    columns: true,
+    skip_empty_lines: true,
+  });
+
+  const maps_client = new Client({});
+
+  // Geocodifica cada endereço e armazena o resultado
+  for (const record of records) {
+    const address = record[addressField];
+
+    if (address) {
+      console.log(address);
+      try {
+        const result = await maps_client.geocode({
+          params: {
+            address: address,
+            key: import.meta.env.GOOGLE_MAPS_KEY,
+          },
+        });
+
+        const location = result.data.results[0]?.geometry.location;
+        record["latitude"] = location?.lat ?? null;
+        record["longitude"] = location?.lng ?? null;
+      } catch (e) {
+        console.error(e);
+        console.warn(`Erro ao geocodificar o endereço: ${address}`);
+      }
+    }
+  }
+
+  console.log("geocodificacao completa para ", addressField);
+
+  try {
+    const updatedCsvContent = stringify(records, {
+      header: true,
+      columns: Object.keys(records[0]),
+    });
+
+    console.log(updatedCsvContent);
+
+    const municipio = data_auth.user?.user_metadata.municipio;
+
+    const { data } = await supabase
+      .from("municipios")
+      .select("nome")
+      .eq("CodMun", municipio)
+      .single();
+
+    const nomeMunicipio = data?.nome ?? "municipio desconhecido";
+
+    const formatedName = nomeMunicipio + (fileName ?? "") + ".csv";
+
+    const { error: error_csv } = await supabase.storage
+      .from("csv_maps")
+      .upload(`${municipio}/${formatedName}`, updatedCsvContent, {
+        upsert: true,
+      });
+
+    if (error_csv) {
+      console.error(error_csv);
+    }
+    console.log("csv concluido", formatedName);
+  } catch (e) {
+    console.error(e);
+  }
+}
 ---
 
 <Layout>
+  {
+    error_csv && (
+      <div class="bg-red-500 p-4">
+        <p>{error_csv.message}</p>
+      </div>
+    )
+  }
+
   <CsvUp client:only />
 </Layout>

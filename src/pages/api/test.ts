@@ -1,19 +1,31 @@
 import { Email } from "../../lib/smtp";
+import nodemaiiler from "nodemailer";
 
 import type { APIRoute } from "astro";
 
 export const prerender = false;
-// Outputs: /builtwith.json
 export const GET: APIRoute = async ({ params, request }) => {
-  const response = await Email.send({
-    Host: "smtp.gmail.com",
-    Username: "Admin@crossgeo.com.br",
-    Password: "Obrigado3",
-    To: "brandaoandre00@gmail.com",
-    From: "suporte@crossgeo.com",
-    Subject: "This is the subject",
-    Body: "And this is the body",
+  const transporter = nodemaiiler.createTransport({
+    service: "gmail",
+    auth: {
+      user: "admin@crossgeo.com.br",
+      pass: "ascy nswn wguv maul",
+    },
   });
 
-  return new Response(JSON.stringify(response));
+  const mailOptions = {
+    from: "admin@crossgeo.com.br",
+    to: "brandaoandre00@gmail.com",
+    subject: "Teste",
+    text: "Teste",
+  };
+
+  try {
+    transporter.sendMail(mailOptions);
+  } catch (error) {
+    console.error(error);
+    return new Response(JSON.stringify(error));
+  }
+
+  return new Response(JSON.stringify("response"));
 };

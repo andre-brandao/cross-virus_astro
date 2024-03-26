@@ -13,33 +13,37 @@ export const POST: APIRoute = async ({ request }) => {
       status: 400,
     });
   }
-  console.log(file, addressField);
+  // console.log(file, addressField);
 
   const csvContent = await file.text();
   const records = parse(csvContent, {
     columns: true,
     skip_empty_lines: true,
   });
+  // console.log(records);
+  // header
+  const headers = Object.keys(records[0]);
+  console.log(headers);
 
-  const maps_client = new Client({});
+  // const maps_client = new Client({});
 
   // Geocodifica cada endereço e armazena o resultado
   for (const record of records) {
     const address = record[addressField];
 
-    if (address) {
-      console.log(address);
-      const result = await maps_client.geocode({
-        params: {
-          address: address,
-          key: import.meta.env.GOOGLE_MAPS_KEY,
-        },
-      });
+    // if (address) {
+    //   console.log(address);
+    //   const result = await maps_client.geocode({
+    //     params: {
+    //       address: address,
+    //       key: import.meta.env.GOOGLE_MAPS_KEY,
+    //     },
+    //   });
 
-      const location = result.data.results[0]?.geometry.location;
-      record["Latitude"] = location?.lat ?? null;
-      record["Longitude"] = location?.lng ?? null;
-    }
+    //   const location = result.data.results[0]?.geometry.location;
+    //   record["Latitude"] = location?.lat ?? null;
+    //   record["Longitude"] = location?.lng ?? null;
+    // }
   }
   // console.log(records);
 

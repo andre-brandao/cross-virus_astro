@@ -19,6 +19,9 @@
 
   import type { ArcgisFilter } from "../types";
 
+
+// let csv_url =
+//   "https://ggueyaykipybplpopegl.supabase.co/storage/v1/object/public/csv_maps/3100401/AcaiacaTeste%202017%20jm.csv";
   export let map_config: {
     csv_url: string;
   };
@@ -27,7 +30,7 @@
     url: map_config.csv_url,
   });
 
-  const drag_search_map: Action<HTMLDivElement> = (node) => {
+  const csv_map: Action<HTMLDivElement> = (node) => {
     const map = new Map({ basemap: "streets-vector" });
 
     map.add(csvLayer);
@@ -50,6 +53,6 @@
 
 <!-- MAIN MAP -->
 <main class="">
-  <div class={"w-full h-[50vh] md:h-[90vh]"} use:drag_search_map></div>
+  <div class={"w-full h-[50vh] md:h-[90vh]"} use:csv_map></div>
 </main>
 <!-- END MAIN MAP -->

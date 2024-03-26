@@ -1,0 +1,197 @@
+---
+import { supabase } from "../../lib/supabase";
+import Layout from "../../layouts/Layout.astro";
+
+const { cookies, redirect } = Astro;
+
+const accessToken = cookies.get("sb-access-token");
+const refreshToken = cookies.get("sb-refresh-token");
+
+if (!accessToken || !refreshToken) {
+  return redirect("/cadastro");
+}
+
+const { data: data_auth, error: error_auth } = await supabase.auth.setSession({
+  refresh_token: refreshToken.value,
+  access_token: accessToken.value,
+});
+
+console.log(data_auth.user);
+
+const auth_user_id = data_auth.user?.id;
+
+if (error_auth || !auth_user_id) {
+  cookies.delete("sb-access-token", {
+    path: "/",
+  });
+  cookies.delete("sb-refresh-token", {
+    path: "/",
+  });
+
+  return redirect("/login");
+}
+
+const { data: info_user, error: error_user } = await supabase
+  .from("info_user")
+  .select("*,  municipios(*)")
+  //   @ts-ignore
+  .eq("auth_id", auth_user_id)
+  .single();
+
+if (error_user) {
+  console.error(error_user);
+  return redirect("/login");
+}
+
+const erros = { nome: "", raio_aviso: "" };
+
+let form = {
+  nome: info_user.nome,
+  raio_aviso: info_user.raio_alerta ?? 0,
+};
+
+if (Astro.request.method === "POST") {
+  try {
+    const formData = await Astro.request.formData();
+
+    const nome = formData.get("nome")?.toString();
+    const raio_aviso = Number(formData.get("raio-aviso"));
+
+    console.log({ email: nome, raio_aviso });
+    form = {
+      nome: nome as string,
+      raio_aviso: raio_aviso,
+    };
+
+    // if (!email || !password || !municipio) {
+    //   return new Response("Email and password are required", { status: 400 });
+    // }
+
+    if (typeof nome !== "string") {
+      erros.nome += "";
+    }
+
+    const hasErrors = Object.values(erros).some((msg) => msg);
+
+    if (!hasErrors) {
+      console.log("valid");
+
+      const { data: post_data, error: post_error } = await supabase
+        .from("info_user")
+        .update({
+          nome,
+          raio_alerta: raio_aviso,
+        })
+        .eq("auth_id", auth_user_id);
+
+      if (post_error) {
+        console.error(post_error);
+        erros.raio_aviso += "Erro ao atualizar dados";
+      }
+    }
+  } catch (err) {
+    console.warn(err);
+  }
+}
+---
+
+<Layout title="Cadastro Crossvirus">
+  <section class="bg-gray-50 dark:bg-gray-900">
+    <div
+      class="flex flex-col items-center justify-center px-6 py-8 mx-auto md:h-[90vh] lg:py-0"
+    >
+      <a
+        href="#"
+        class="flex items-center mb-6 text-2xl font-semibold text-gray-900 dark:text-white"
+      >
+        <!-- <img
+          class="w-8 h-8 mr-2"
+          src=""
+          alt="logo"
+        /> -->
+        Crossvirus - Editar dados pessoais
+      </a>
+      <div
+        class="w-full bg-white rounded-lg shadow dark:border md:mt-0 sm:max-w-md xl:p-0 dark:bg-gray-800 dark:border-gray-700"
+      >
+        <div class="p-6 space-y-4 md:space-y-6 sm:p-8">
+          <h1
+            class="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl dark:text-white text-center"
+          >
+            {info_user.municipios?.nome} - {info_user.municipios?.UF} ({info_user.municipios?.CodMun})
+          </h1>
+
+          <h3 class="text-center">
+            {info_user.email}
+          </h3>
+          <form class="space-y-4 md:space-y-6" method="post">
+            <div>
+              <label
+                for="nome"
+                class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                >Seu nome:</label
+              >
+              <input
+                type="text"
+                name="nome"
+                value={form.nome}
+                id="nome"
+                class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary focus:border-primary block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                placeholder="Rogerio Silva"
+                required
+              />
+            </div>
+            {
+              erros.nome && (
+                <p class="text-sm text-red-500 dark:text-red-400">
+                  {erros.nome}
+                </p>
+              )
+            }
+            <div>
+              <label
+                for="raio-aviso"
+                class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                >Raio da notificação de novos casos</label
+              >
+              <input
+                type="number"
+                name="raio-aviso"
+                id="raio-aviso"
+                value={form.raio_aviso}
+                class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                required=""
+              />
+            </div>
+            <p>
+              **Quando forem computados novos casos de uma doença o crossvirus
+              te enviara um email avisando
+            </p>
+            {
+              erros.raio_aviso && (
+                <p class="text-sm text-red-500 dark:text-red-400">
+                  {erros.raio_aviso}
+                </p>
+              )
+            }
+
+            <div>
+              <button
+                type="submit"
+                class="w-full text-white bg-secondary hover:bg-primary focus:ring-4 focus:outline-none focus:ring-primary font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-primary dark:hover:bg-primary dark:focus:ring-primary"
+                >Atualizar Informações Pessoais</button
+              >
+              <p class="text-sm font-light text-gray-500 dark:text-gray-400">
+                Tudo Certo? Volte para <a
+                  href="/autenticado"
+                  class="font-medium text-primary hover:underline dark:text-primary"
+                  >Dashboard</a
+                >
+              </p>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </section>
+</Layout>

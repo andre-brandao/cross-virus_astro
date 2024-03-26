@@ -1,0 +1,183 @@
+---
+function removeSpaces(str: string) {
+  return (
+    str
+      // .replaceAll(/\s/g, "")
+      .replaceAll("-", "")
+  );
+}
+import Layout from "../../layouts/AuthLayout.astro";
+import CsvUp from "./csvUpload.svelte";
+
+import { parse } from "csv-parse/sync";
+import { stringify } from "csv-stringify/sync";
+import { Client } from "@googlemaps/google-maps-services-js";
+import { supabase } from "../../lib/supabase";
+
+const { cookies, redirect, params } = Astro;
+
+const accessToken = cookies.get("sb-access-token");
+const refreshToken = cookies.get("sb-refresh-token");
+
+if (!accessToken || !refreshToken) {
+  return redirect("/login");
+}
+
+const { data: data_auth, error } = await supabase.auth.setSession({
+  refresh_token: refreshToken.value,
+  access_token: accessToken.value,
+});
+
+if (error) {
+  cookies.delete("sb-access-token", {
+    path: "/",
+  });
+  cookies.delete("sb-refresh-token", {
+    path: "/",
+  });
+
+  return redirect("/login");
+}
+
+const CodMun = data_auth.user?.user_metadata.municipio;
+
+const { data: municipio, error: error_municipio } = await supabase
+  .from("municipios")
+  .select("*")
+  .eq("CodMun", CodMun)
+  .single();
+if (error_municipio) {
+  console.error(error_municipio);
+  return redirect("/login");
+}
+
+let erros_pro_cliente = "";
+if (Astro.request.method === "POST") {
+  const { request } = Astro;
+  console.log("POST", request);
+  const formData = await request.formData();
+  const file = formData.get("csv");
+  const addressField = formData.get("field")?.toString();
+  const ano = formData.get("ano")?.toString();
+  const doenca = formData.get("doenca")?.toString();
+
+  // const fileName = `${municipio?.nome} ${doenca} ${ano}.csv`;
+  const fileName = formData.get("fileName")?.toString();
+  if (
+    !file ||
+    !(file instanceof File) ||
+    typeof addressField !== "string" ||
+    typeof fileName !== "string"
+  ) {
+    error;
+    erros_pro_cliente += "Arquivo ou campo de endereço inválido";
+
+    return;
+    // return new Response("Arquivo ou campo de endereço inválido", {
+    //   status: 400,
+    // });
+  }
+  console.log(file, addressField);
+
+  const csvContent = await file.text();
+  const records = parse(csvContent, {
+    columns: true,
+    skip_empty_lines: true,
+  });
+
+  const headers = Object.keys(records[0]);
+  const maps_client = new Client({});
+
+  if (!headers.includes(addressField)) {
+    erros_pro_cliente += "Campo de endereço inválido";
+    return;
+  }
+  // Geocodifica cada endereço e armazena o resultado
+  for (const record of records) {
+    const address = record[addressField];
+
+    if (address) {
+      console.log(address);
+      try {
+        const result = await maps_client.geocode({
+          params: {
+            address: address,
+            key: import.meta.env.GOOGLE_MAPS_KEY,
+          },
+        });
+
+        const location = result.data.results[0]?.geometry.location;
+        record["latitude"] = location?.lat ?? null;
+        record["longitude"] = location?.lng ?? null;
+      } catch (e) {
+        console.error(e);
+        console.warn(`Erro ao geocodificar o endereço: ${address}`);
+      }
+    }
+  }
+
+  console.log("geocodificacao completa para ", addressField);
+
+  try {
+    const updatedCsvContent = stringify(records, {
+      header: true,
+      columns: Object.keys(records[0]),
+    });
+
+    const nomeMunicipio = municipio?.nome ?? "municipio desconhecido";
+
+    const formatedName = fileName;
+
+    console.log(formatedName);
+
+    const { data: storage_data, error: error_csv } = await supabase.storage
+      .from("csv_maps")
+      .upload(`${municipio.CodMun}/${formatedName}`, updatedCsvContent, {
+        upsert: true,
+      });
+
+    if (error_csv) {
+      console.error("supabase.storage error:");
+      console.error(error_csv);
+      erros_pro_cliente += error_csv.message;
+      // return new Response("Erro ao salvar o arquivo", {
+      //   status: 500,
+      // });
+    }
+    const {
+      data: { publicUrl },
+    } = supabase.storage.from("csv_maps").getPublicUrl(storage_data!.path);
+
+    const { data: dataset_data, error: dataset_error } = await supabase
+      .from("csv_dataset")
+      .insert({
+        title: formatedName,
+        csv_url: publicUrl,
+        fields: headers,
+      });
+    if (dataset_error) {
+      console.error("supabase error:");
+      console.error(dataset_error);
+      erros_pro_cliente += dataset_error.message;
+    }
+
+    console.log("csv concluido", formatedName);
+    return redirect('/maps/custom')
+  } catch (e) {
+    console.error(e);
+  }
+}
+
+console.log(municipio);
+---
+
+<Layout>
+  <CsvUp client:only municipio={municipio} />
+  {
+    erros_pro_cliente && (
+      <div class="bg-red-500 p-5 m-5 text-center">
+        <p class="font-bold">{erros_pro_cliente}</p>
+      </div>
+    )
+  }
+</Layout>

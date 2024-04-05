@@ -1,11 +1,11 @@
 ---
-import Layout from "../../layouts/AuthLayout.astro";
+import Layout from "../../../layouts/AuthLayout.astro";
 import CsvUp from "./csvUpload.svelte";
 
 import { parse } from "csv-parse/sync";
 import { stringify } from "csv-stringify/sync";
 import { Client } from "@googlemaps/google-maps-services-js";
-import { supabase } from "../../lib/supabase";
+import { supabase } from "../../../lib/supabase";
 
 const { cookies, redirect, params } = Astro;
 
@@ -164,6 +164,7 @@ console.log(municipio);
 ---
 
 <Layout>
+    
   <CsvUp client:only municipio={municipio} />
   {
     erros_pro_cliente && (

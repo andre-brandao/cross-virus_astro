@@ -11,31 +11,31 @@ export type Database = {
     Tables: {
       csv_dataset: {
         Row: {
-          CodMun: number | null
+          CodMun: number
           created_at: string
           created_by: string
           csv_url: string
-          endereco: string | null
+          endereco: string
           fields: string[]
           id: number
           title: string
         }
         Insert: {
-          CodMun?: number | null
+          CodMun: number
           created_at?: string
           created_by?: string
           csv_url: string
-          endereco?: string | null
+          endereco?: string
           fields: string[]
           id?: number
           title: string
         }
         Update: {
-          CodMun?: number | null
+          CodMun?: number
           created_at?: string
           created_by?: string
           csv_url?: string
-          endereco?: string | null
+          endereco?: string
           fields?: string[]
           id?: number
           title?: string
@@ -99,29 +99,29 @@ export type Database = {
         Row: {
           CodMun: number
           created_at: string
-          faixa_pop: string | null
+          faixa_pop: string
           nome: string
-          pop_est: number | null
-          regiao: string | null
-          UF: string | null
+          pop_est: number
+          regiao: string
+          UF: string
         }
         Insert: {
           CodMun: number
           created_at?: string
-          faixa_pop?: string | null
+          faixa_pop: string
           nome: string
-          pop_est?: number | null
-          regiao?: string | null
-          UF?: string | null
+          pop_est: number
+          regiao: string
+          UF: string
         }
         Update: {
           CodMun?: number
           created_at?: string
-          faixa_pop?: string | null
+          faixa_pop?: string
           nome?: string
-          pop_est?: number | null
-          regiao?: string | null
-          UF?: string | null
+          pop_est?: number
+          regiao?: string
+          UF?: string
         }
         Relationships: []
       }

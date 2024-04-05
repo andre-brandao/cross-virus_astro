@@ -2,10 +2,7 @@
   export let municipio = {
     CodMun: 0,
     created_at: "",
-    faixa_pop: "",
     nome: "",
-    pop_est: 0,
-    regiao: "",
     UF: "",
   };
 
@@ -132,11 +129,6 @@
           : 'border-secondary'}"
       >
         <div>
-          <input
-            type="hidden"
-            class="hidden"
-            value={`${municipio.nome} ${doenca} ${ano}.csv`}
-          />
           <input
             id="csv"
             name="csv"
@@ -271,7 +263,6 @@
           </tr>
         {/each}
       </tbody>
-      ]
     </table>
   </div>
   <p class="text-center font-bold">

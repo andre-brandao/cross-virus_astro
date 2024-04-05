@@ -1,0 +1,248 @@
+---
+import { supabase } from "../../../lib/supabase";
+
+import { parse } from "csv-parse/sync";
+import { stringify } from "csv-stringify/sync";
+import { Client } from "@googlemaps/google-maps-services-js";
+import Layout from "../../../layouts/Layout.astro";
+import CsvUp from "./csvUdate.svelte";
+import { getDistanceFromLatLonInKm } from "../../../lib/utils";
+import { sendEmail } from "../../../lib/utils";
+
+const mapID = Astro.params.map;
+
+if (!mapID) {
+  console.log(Astro.params);
+  return new Response(JSON.stringify({ error: "No map ID provided" }), {
+    status: 400,
+  });
+}
+
+const { data: map } = await supabase
+  .from("csv_dataset")
+  .select("*")
+  .eq("id", mapID)
+  .single();
+
+if (!map) {
+  console.log("Map not found");
+
+  return new Response(JSON.stringify({ error: "Map not found" }), {
+    status: 404,
+  });
+}
+
+let { data: users_to_notify, error } = await supabase
+  .from("info_user")
+  .select("*")
+  .eq("CodMun", map.CodMun)
+  .gt("raio_alerta", 0);
+
+console.log(users_to_notify);
+
+console.log(error);
+
+let erros_pro_cliente = "";
+
+if (Astro.request.method === "POST") {
+  const { request } = Astro;
+  const formData = await request.formData();
+  const file = formData.get("csv");
+  const addressField = map.endereco;
+  const fileName = map.title;
+
+  if (
+    !file ||
+    !(file instanceof File) ||
+    typeof addressField !== "string" ||
+    typeof fileName !== "string"
+  ) {
+    erros_pro_cliente += "Arquivo ou campo de endereço inválido";
+
+    return;
+  }
+  console.log(file, addressField);
+
+  const csvContent = await file.text();
+  const novo_csv_parsed = parse(csvContent, {
+    columns: true,
+    skip_empty_lines: true,
+  });
+
+  const headers = Object.keys(novo_csv_parsed[0]);
+  const maps_client = new Client({});
+
+  if (!headers.includes(addressField)) {
+    erros_pro_cliente += "Campo de endereço inválido";
+    return;
+  }
+  // Geocodifica cada endereço e armazena o resultado
+  for (const novo_csv_record of novo_csv_parsed) {
+    const address = novo_csv_record[addressField];
+    if (address) {
+      console.log(address);
+      try {
+        const result = await maps_client.geocode({
+          params: {
+            address: address,
+            key: import.meta.env.GOOGLE_MAPS_KEY,
+          },
+        });
+
+        const location = result.data.results[0]?.geometry.location;
+        novo_csv_record["latitude"] = location?.lat ?? null;
+        novo_csv_record["longitude"] = location?.lng ?? null;
+      } catch (e) {
+        console.error(e);
+        console.warn(`Erro ao geocodificar o endereço: ${address}`);
+      }
+    }
+  }
+
+  const velho_csv_url = map.csv_url;
+  const velho_csv_req = await fetch(velho_csv_url);
+  const velho_csv = await velho_csv_req.text();
+  const velho_csv_parsed = parse(velho_csv, {
+    columns: true,
+    skip_empty_lines: true,
+  });
+  const user_to_notify_map: {
+    [key: string]: {
+      enderecos_novos: string[];
+    };
+  } = {};
+
+  if (users_to_notify) {
+    console.log("Iniciando notificacao de users");
+
+    for (const novo_csv_record of novo_csv_parsed) {
+      // Verifica se algum dos endereços novos está dentro do raio de alerta de algum usuário
+      for (const novo_csv_record2 of novo_csv_parsed) {
+        const distance = getDistanceFromLatLonInKm(
+          {
+            lat: novo_csv_record["latitude"],
+            lon: novo_csv_record["longitude"],
+          },
+          {
+            lat: novo_csv_record2["latitude"],
+            lon: novo_csv_record2["longitude"],
+          }
+        );
+        for (const user of users_to_notify) {
+          if (user.raio_alerta && distance <= user.raio_alerta) {
+            if (!user_to_notify_map[user.email]) {
+              user_to_notify_map[user.email] = {
+                enderecos_novos: [],
+              };
+            }
+            user_to_notify_map[user.email].enderecos_novos.push(
+              novo_csv_record[addressField]
+            );
+          }
+        }
+      }
+
+      for (const velho_csv_record of velho_csv_parsed) {
+        const distance = getDistanceFromLatLonInKm(
+          {
+            lat: novo_csv_record["latitude"],
+            lon: novo_csv_record["longitude"],
+          },
+          {
+            lat: velho_csv_record["latitude"],
+            lon: velho_csv_record["longitude"],
+          }
+        );
+        for (const user of users_to_notify) {
+          if (user.raio_alerta && distance <= user.raio_alerta) {
+            if (!user_to_notify_map[user.email]) {
+              user_to_notify_map[user.email] = {
+                enderecos_novos: [],
+              };
+            }
+            user_to_notify_map[user.email].enderecos_novos.push(
+              novo_csv_record[addressField]
+            );
+          }
+        }
+      }
+    }
+
+    for (const not of Object.keys(user_to_notify_map)) {
+      const user = user_to_notify_map[not];
+      const email = not;
+      const enderecos = user.enderecos_novos;
+      const message = `Novos endereços próximos a você: ${enderecos.join(", ")}`;
+      console.log("Enviando email para ", email);
+      const { ok } = await sendEmail(email, message);
+      if (!ok) {
+        console.log("Erro ao enviar email para ", email);
+      }
+    }
+
+    // send email
+  }
+
+  for (const novo_csv_record of novo_csv_parsed) {
+    velho_csv_parsed.push(novo_csv_record);
+  }
+  console.log("geocodificacao completa para ", addressField);
+
+  try {
+    const updatedCsvContent = stringify(novo_csv_parsed, {
+      header: true,
+      columns: Object.keys(novo_csv_parsed[0]),
+    });
+
+    const formatedName = fileName;
+
+    console.log(formatedName);
+
+    const { data: storage_data, error: error_csv } = await supabase.storage
+      .from("csv_maps")
+      .update(`${map.CodMun}/${formatedName}`, updatedCsvContent, {
+        upsert: true,
+      });
+
+    if (error_csv) {
+      console.error("supabase.storage error:");
+      console.error(error_csv);
+      erros_pro_cliente += error_csv.message;
+      // return new Response("Erro ao salvar o arquivo", {
+      //   status: 500,
+      // });
+    }
+    const {
+      data: { publicUrl },
+    } = supabase.storage.from("csv_maps").getPublicUrl(storage_data!.path);
+
+    const { data: dataset_data, error: dataset_error } = await supabase
+      .from("csv_dataset")
+      .update({
+        created_at: new Date().toISOString(),
+      });
+    if (dataset_error) {
+      console.error("supabase error:");
+      console.error(dataset_error);
+      erros_pro_cliente += dataset_error.message;
+    }
+
+    console.log("csv concluido", formatedName);
+    return redirect("/maps/custom");
+  } catch (e) {
+    console.error(e);
+  }
+}
+---
+
+<Layout title="">
+  <CsvUp client:only map={map} />
+
+  {
+    erros_pro_cliente && (
+      <div class="bg-red-500 p-5 m-5 text-center">
+        <p class="font-bold">{erros_pro_cliente}</p>
+      </div>
+    )
+  }
+</Layout>

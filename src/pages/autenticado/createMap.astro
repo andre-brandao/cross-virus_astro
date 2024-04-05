@@ -1,11 +1,4 @@
 ---
-function removeSpaces(str: string) {
-  return (
-    str
-      // .replaceAll(/\s/g, "")
-      .replaceAll("-", "")
-  );
-}
 import Layout from "../../layouts/AuthLayout.astro";
 import CsvUp from "./csvUpload.svelte";
 
@@ -69,7 +62,6 @@ if (Astro.request.method === "POST") {
     typeof addressField !== "string" ||
     typeof fileName !== "string"
   ) {
-    error;
     erros_pro_cliente += "Arquivo ou campo de endereço inválido";
 
     return;
@@ -124,8 +116,6 @@ if (Astro.request.method === "POST") {
       columns: Object.keys(records[0]),
     });
 
-    const nomeMunicipio = municipio?.nome ?? "municipio desconhecido";
-
     const formatedName = fileName;
 
     console.log(formatedName);
@@ -154,6 +144,8 @@ if (Astro.request.method === "POST") {
         title: formatedName,
         csv_url: publicUrl,
         fields: headers,
+        endereco: addressField,
+        CodMun: municipio.CodMun,
       });
     if (dataset_error) {
       console.error("supabase error:");
@@ -162,7 +154,7 @@ if (Astro.request.method === "POST") {
     }
 
     console.log("csv concluido", formatedName);
-    return redirect('/maps/custom')
+    return redirect("/maps/custom");
   } catch (e) {
     console.error(e);
   }

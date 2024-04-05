@@ -43,11 +43,16 @@ const { data: info_municipio, error: error_municipio } = await supabase
   .eq("CodMun", municipio)
   .single();
 
+const { data: maps } = await supabase
+  .from("csv_dataset")
+  .select("*")
+  .eq("CodMun", municipio);
+
+console.log(maps);
+
 if (error_municipio) {
   console.warn("Error fetching municipio", error_municipio);
 }
-
-let maps = [];
 ---
 
 <Layout title="">
@@ -71,7 +76,7 @@ let maps = [];
         <!-- <span class="mt-2 text-gray-500"
           >Faixa Pop: {info_municipio?.faixa_pop}</span
         > -->
-
+        <!-- {info_municipio?.CodMun} -->
         <a
           href="/autenticado/edit_profile"
           class="hover:underline hover:bg-secondary hover:text-white p-1 rounded"
@@ -82,7 +87,13 @@ let maps = [];
     </nav>
 
     {
-      maps.length === 0 && (
+      maps?.map((m) => {
+        return <a href={`/autenticado/updateMap/${m.id}`}>{m.title}</a>;
+      })
+    }
+
+    {
+      maps?.length === 0 && (
         <div class="flex items-center justify-between w-full h-5/6 flex-col">
           <div class="text-2xl font-bold text-gray-500 text-center py-4">
             <p>Nenhum Mapa Disponivel para essa cidade.</p>

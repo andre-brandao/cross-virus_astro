@@ -70,10 +70,9 @@
       });
 
       if (response.ok) {
-        const result = await response.json();
         console.log("Resultado da Geocodificação:", result);
       } else {
-        console.error("Erro ao enviar arquivo:", await response.text());
+        console.error("Erro ao enviar arquivo:");
       }
       isUploading = false;
     } catch (e) {

@@ -10,7 +10,7 @@ if (!id_csv) {
     body: "id_csv is required",
   };
 }
-import CSVMap from "../../components/svelte-v2/CSVMaps/CSVTest.svelte";
+import CSVMap from "../../components/svelte-v2/CSVMaps/CSVMap.svelte";
 import Layout from "../../layouts/MapLayout.astro";
 const { data } = await supabase
   .from("csv_dataset")

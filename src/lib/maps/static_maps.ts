@@ -1,5 +1,11 @@
 export const maps = [
   {
+    title: "Cluster Dengue Joao Monlevade (2024)",
+    link: "/original_maps/cluster",
+    image: "/cluster.png",
+  },
+
+  {
     title: "Dashboard João Monlevade Dengue (2024)",
     description:
       "Dahsboard com estatísticas sobre a dengue em 2024, explore os casos de dengue com um heatemap, busca em poligonos e muito mais!",

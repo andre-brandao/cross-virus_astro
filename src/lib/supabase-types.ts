@@ -11,30 +11,44 @@ export type Database = {
     Tables: {
       csv_dataset: {
         Row: {
+          CodMun: number | null
           created_at: string
           created_by: string
           csv_url: string
+          endereco: string | null
           fields: string[]
           id: number
           title: string
         }
         Insert: {
+          CodMun?: number | null
           created_at?: string
           created_by?: string
           csv_url: string
+          endereco?: string | null
           fields: string[]
           id?: number
           title: string
         }
         Update: {
+          CodMun?: number | null
           created_at?: string
           created_by?: string
           csv_url?: string
+          endereco?: string | null
           fields?: string[]
           id?: number
           title?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "public_csv_dataset_CodMun_fkey"
+            columns: ["CodMun"]
+            isOneToOne: false
+            referencedRelation: "municipios"
+            referencedColumns: ["CodMun"]
+          },
+        ]
       }
       info_user: {
         Row: {

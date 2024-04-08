@@ -15,7 +15,7 @@ const accessToken = cookies.get("sb-access-token");
 const refreshToken = cookies.get("sb-refresh-token");
 
 if (!accessToken || !refreshToken) {
-  return redirect("/signin");
+  return redirect("/login");
 }
 
 const { data: data_auth, error: error_auth } = await supabase.auth.setSession({
@@ -43,11 +43,16 @@ const { data: info_municipio, error: error_municipio } = await supabase
   .eq("CodMun", municipio)
   .single();
 
+const { data: maps } = await supabase
+  .from("csv_dataset")
+  .select("*")
+  .eq("CodMun", municipio);
+
+console.log(maps);
+
 if (error_municipio) {
   console.warn("Error fetching municipio", error_municipio);
 }
-
-let maps = [];
 ---
 
 <Layout title="">
@@ -64,22 +69,31 @@ let maps = [];
           </span>
         </div>
         <span class="mt-2 text-gray-500">Estado: {info_municipio?.UF}</span>
-        <span class="mt-2 text-gray-500">Código: {info_municipio?.CodMun}</span>
+        <!-- <span class="mt-2 text-gray-500">Código: {info_municipio?.CodMun}</span> -->
         <span class="mt-2 text-gray-500">
           População Estimada 2021: {info_municipio?.pop_est}
         </span>
-        <span class="mt-2 text-gray-500"
+        <!-- <span class="mt-2 text-gray-500"
           >Faixa Pop: {info_municipio?.faixa_pop}</span
+        > -->
+        <!-- {info_municipio?.CodMun} -->
+        <a
+          href="/autenticado/edit_profile"
+          class="hover:underline hover:bg-secondary hover:text-white p-1 rounded"
         >
-
-        <span>
           {data_auth.user?.email}
-        </span>
+        </a>
       </div>
     </nav>
 
     {
-      maps.length === 0 && (
+      maps?.map((m) => {
+        return <a href={`/autenticado/updateMap/${m.id}`}>{m.title}</a>;
+      })
+    }
+
+    {
+      maps?.length === 0 && (
         <div class="flex items-center justify-between w-full h-5/6 flex-col">
           <div class="text-2xl font-bold text-gray-500 text-center py-4">
             <p>Nenhum Mapa Disponivel para essa cidade.</p>
@@ -97,16 +111,17 @@ let maps = [];
               frameborder="0"
             />
           </div>
-          <div class="py-4">
-            <a
-              class="inline-block px-6 py-2 text-xs font-medium leading-6 text-center text-white uppercase transition bg-blue-600 rounded shadow ripple hover:shadow-lg hover:bg-blue-800 focus:outline-none"
-              href={wpp_link}
-            >
-              Faça a solicitação de um mapa para sua cidade.
-            </a>
-          </div>
         </div>
       )
     }
+
+    <div class="py-4">
+      <a
+        class="inline-block px-6 py-2 text-xs font-medium leading-6 text-center text-white uppercase transition bg-blue-600 rounded shadow ripple hover:shadow-lg hover:bg-blue-800 focus:outline-none"
+        href={"/autenticado/createMap"}
+      >
+        Faça a solicitação de um mapa para sua cidade.
+      </a>
+    </div>
   </main>
 </Layout>

@@ -1,7 +1,9 @@
 ---
-import Layout from "../../layouts/Layout.astro";
+import { supabase } from "../../lib/supabase";
 
-import { maps } from "../../lib/maps/static_maps";
+const { data: maps } = await supabase.from("csv_dataset").select("*");
+
+import Layout from "../../layouts/Layout.astro";
 ---
 
 <Layout title="Embeded Maps">
@@ -14,25 +16,21 @@ import { maps } from "../../lib/maps/static_maps";
           class="grid lg:grid-cols-3 md:grid-cols-2 grid-cols-1 gap-6 h-full"
         >
           {
-            maps.map((m) => (
+            maps?.map((m) => (
               <a
                 class="grid grid-cols-1 items-end max-md:items-center gap-6 p-3 bg-gray-100 hover:bg-gray-500 shadow-sm  hover:shadow-md rounded-xl bg-300% font-bold hover:bg-gradient-to-r from-secondary via-primary to-secondary hover:text-transparent hover:bg-clip-text animate-gradient"
-                href={m.link}
+                href={`/maps/${m.id}`}
                 hover:outline-primary
               >
                 <div class="flex flex-col w-full items-center  max-md:items-center gap-1 ">
                   <>
                     <h2 class="text-xl font-semibold  ">{m.title}</h2>
-                   <!--
-                    <p class="text-lg text-gray-500 dark:text-gray-400">
-                    {m.description}
-                  </p>
-                     -->
+                    <p class="text-lg text-gray-500 dark:text-gray-400">{""}</p>
                   </>
                 </div>
                 <div class="h-[250px] rounded-lg overflow-hidden flex justify-end max-md:justify-center">
                   <img
-                    src={m.image}
+                    src="/placeholder.png"
                     alt="Map"
                     width="500"
                     height="250"

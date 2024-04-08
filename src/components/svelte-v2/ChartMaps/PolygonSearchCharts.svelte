@@ -20,7 +20,6 @@
       filter: {
         layerName: scene_config.options?.filter?.layerName,
         fieldNames: scene_config.options?.filter?.fieldNames ?? [],
-        radius: scene_config.options?.filter?.radius ?? 1,
         sql_filter: scene_config.charts
           .map((chart) => chart.sql_filter)
           .reduce((acc, val) => acc.concat(val), []),

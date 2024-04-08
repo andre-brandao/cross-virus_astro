@@ -189,18 +189,19 @@ if (Astro.request.method === "POST") {
   console.log("geocodificacao completa para ", addressField);
 
   try {
-    const updatedCsvContent = stringify(novo_csv_parsed, {
+    const novoCSVContent = stringify(velho_csv_parsed, {
       header: true,
-      columns: Object.keys(novo_csv_parsed[0]),
+      columns: Object.keys(velho_csv_parsed[0]),
     });
 
     const formatedName = fileName;
-
+    console.log("salvando updated csv");
     console.log(formatedName);
 
+    console.log(novoCSVContent);
     const { data: storage_data, error: error_csv } = await supabase.storage
       .from("csv_maps")
-      .update(`${map.CodMun}/${formatedName}`, updatedCsvContent, {
+      .update(`${map.CodMun}/${formatedName}`, novoCSVContent, {
         upsert: true,
       });
 
@@ -220,7 +221,8 @@ if (Astro.request.method === "POST") {
       .from("csv_dataset")
       .update({
         created_at: new Date().toISOString(),
-      });
+      })
+      .eq("id", map.id);
     if (dataset_error) {
       console.error("supabase error:");
       console.error(dataset_error);
@@ -228,7 +230,11 @@ if (Astro.request.method === "POST") {
     }
 
     console.log("csv concluido", formatedName);
-    return redirect("/maps/custom");
+
+    if (erros_pro_cliente) {
+      // return new Response(erros_pro_cliente);
+    }
+    return Astro.redirect("/maps/custom");
   } catch (e) {
     console.error(e);
   }

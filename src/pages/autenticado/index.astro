@@ -85,12 +85,64 @@ if (error_municipio) {
         </a>
       </div>
     </nav>
+    <div class="grid-cols-3">
+      {
+        maps?.map((m) => {
+          return (
+            <div class="flex items-center justify-center gap-2 border border-primary p-2">
+              <p>{m.title}</p>
 
-    {
-      maps?.map((m) => {
-        return <a href={`/autenticado/updateMap/${m.id}`}>{m.title}</a>;
-      })
-    }
+              <a
+                href={`/maps/${m.id}`}
+                class="hover:bg-primary rounded-full p-1"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  class="lucide lucide-map-pinned"
+                >
+                  <>
+                    <path d="M18 8c0 4.5-6 9-6 9s-6-4.5-6-9a6 6 0 0 1 12 0" />
+                    <circle cx="12" cy="8" r="2" />
+                    <path d="M8.835 14H5a1 1 0 0 0-.9.7l-2 6c-.1.1-.1.2-.1.3 0 .6.4 1 1 1h18c.6 0 1-.4 1-1 0-.1 0-.2-.1-.3l-2-6a1 1 0 0 0-.9-.7h-3.835" />
+                  </>
+                </svg>
+              </a>
+
+              <a
+                href={`/autenticado/updateMap/${m.id}`}
+                class="hover:bg-primary rounded-full p-1"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  class="lucide lucide-pencil"
+                >
+                  <>
+                    <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" />
+                    <path d="m15 5 4 4" />
+                  </>
+                </svg>
+              </a>
+            </div>
+          );
+        })
+      }
+    </div>
 
     {
       maps?.length === 0 && (
@@ -120,7 +172,7 @@ if (error_municipio) {
         class="inline-block px-6 py-2 text-xs font-medium leading-6 text-center text-white uppercase transition bg-blue-600 rounded shadow ripple hover:shadow-lg hover:bg-blue-800 focus:outline-none"
         href={"/autenticado/createMap"}
       >
-        Faça a solicitação de um mapa para sua cidade.
+        Faça a solicitação de um NOVO mapa para sua cidade.
       </a>
     </div>
   </main>

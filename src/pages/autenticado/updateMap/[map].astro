@@ -232,7 +232,7 @@ if (Astro.request.method === "POST") {
     console.log("csv concluido", formatedName);
 
     if (erros_pro_cliente) {
-      return new Response(erros_pro_cliente);
+      // return new Response(erros_pro_cliente);
     }
     return Astro.redirect("/maps/custom");
   } catch (e) {

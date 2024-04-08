@@ -1,0 +1,9 @@
+{
+    "functions": {
+
+      "autenticado/*.astro": {
+        "memory": 3009,
+        "maxDuration": 30
+      }
+    }
+  }

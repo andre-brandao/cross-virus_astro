@@ -1,9 +1,12 @@
 {
-    "functions": {
-
-      "autenticado/*.astro": {
-        "memory": 3009,
-        "maxDuration": 30
-      }
+  "functions": {
+    "api/*.js": {
+      "memory": 3009,
+      "maxDuration": 60
+    },
+    "api/*.ts": {
+      "memory": 3009,
+      "maxDuration": 60
     }
   }
+}

@@ -7,5 +7,10 @@ import tailwind from "@astrojs/tailwind";
 export default defineConfig({
   output: "server",
   integrations: [svelte(), tailwind()],
-  adapter: vercel(),
+  adapter: vercel({
+    webAnalytics: {
+      enabled: true,
+    },
+    maxDuration: 100,
+  }),
 });

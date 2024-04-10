@@ -9,7 +9,6 @@ import { Client } from "@googlemaps/google-maps-services-js";
 // CSV
 import { parse } from "csv-parse/sync";
 import { stringify } from "csv-stringify/sync";
-
 export const POST: APIRoute = async ({ request, cookies, params }) => {
   // const accessToken = cookies.get("sb-access-token");
   // const refreshToken = cookies.get("sb-refresh-token");

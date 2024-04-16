@@ -11,7 +11,7 @@ if (!id_csv) {
   };
 }
 import CSVMap from "../../components/svelte-v2/CSVMaps/CSVMap.svelte";
-import Layout from "../../layouts/MapLayout.astro";
+import Layout from "../../layouts/AuthLayout.astro";
 const { data } = await supabase
   .from("csv_dataset")
   .select("*")
@@ -29,7 +29,7 @@ if (!csv_url) {
 }
 ---
 
-<Layout title="" maps={[]}>
+<Layout title="" >
   <CSVMap
     client:only
     map_config={{

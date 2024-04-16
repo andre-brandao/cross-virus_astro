@@ -5,7 +5,7 @@ interface Props {
 
 const { title } = Astro.props;
 
-import Layout from "../../layouts/Layout.astro";
+import Layout from "../../layouts/AuthLayout.astro";
 import { wpp_link } from "../../lib/links";
 import { supabase } from "../../lib/supabase";
 
@@ -57,43 +57,16 @@ if (error_municipio) {
 
 <Layout title="">
   <main class="flex justify-center flex-col items-center">
-    <nav
-      class="sticky top-0 z-50 w-4/5 bg-white rounded-xl shadow-md overflow-hidden m-2"
-    >
-      <div class="p-8 flex items-center justify-between text-lg">
-        <div>
-          <span> Central Crossvirus de </span>
-
-          <span class="uppercase tracking-wide text-secondary font-semibold">
-            {info_municipio?.nome}
-          </span>
-        </div>
-        <span class="mt-2 text-gray-500">Estado: {info_municipio?.UF}</span>
-        <!-- <span class="mt-2 text-gray-500">Código: {info_municipio?.CodMun}</span> -->
-        <span class="mt-2 text-gray-500">
-          População Estimada 2021: {info_municipio?.pop_est}
-        </span>
-        <!-- <span class="mt-2 text-gray-500"
-          >Faixa Pop: {info_municipio?.faixa_pop}</span
-        > -->
-        <!-- {info_municipio?.CodMun} -->
-        <a
-          href="/autenticado/edit_profile"
-          class="hover:underline hover:bg-secondary hover:text-white p-1 rounded"
-        >
-          {data_auth.user?.email}
-        </a>
-      </div>
-    </nav>
-    <div class="grid-cols-3">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
       {
         maps?.map((m) => {
           return (
-            <div class="flex items-center justify-center gap-2 border border-primary p-2">
+            <div class="flex items-center justify-center gap-2 border border-primary p-2 rounded">
               <p>{m.title}</p>
 
               <a
                 href={`/maps/${m.id}`}
+                title="Visualizar Mapa"
                 class="hover:bg-primary rounded-full p-1"
               >
                 <svg
@@ -118,25 +91,11 @@ if (error_municipio) {
 
               <a
                 href={`/autenticado/updateMap/${m.id}`}
+                title="Adicionar novos dados a esse mapa"
                 class="hover:bg-primary rounded-full p-1"
               >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="24"
-                  height="24"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  class="lucide lucide-pencil"
-                >
-                  <>
-                    <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" />
-                    <path d="m15 5 4 4" />
-                  </>
-                </svg>
+
+        +
               </a>
             </div>
           );

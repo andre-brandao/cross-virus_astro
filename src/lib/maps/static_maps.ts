@@ -39,18 +39,18 @@ export const maps = [
     image: "/scene_dengue_2016.png",
     link: "/svelte_maps/divinopolis/scene_dengue_2016",
   },
-  {
-    title: "Divinopolis Dengue (2016)",
-    description:
-      "Clique e segure no mapa para escanear casos e estatísticas sobre a dengue em um raio de 1KM",
-    image: "/map_dengue_2016.png",
-    link: "/svelte_maps/divinopolis/map_dengue_2016",
-  },
-  {
-    title: "Divinopolis Dengue (2017)",
-    description:
-      "Clique e segure no mapa para escanear casos e estatísticas sobre a dengue em um raio de 1KM",
-    image: "/map_dengue_2017.png",
-    link: "/svelte_maps/divinopolis/map_dengue_2017",
-  },
+  // {
+  //   title: "Divinopolis Dengue (2016)",
+  //   description:
+  //     "Clique e segure no mapa para escanear casos e estatísticas sobre a dengue em um raio de 1KM",
+  //   image: "/map_dengue_2016.png",
+  //   link: "/svelte_maps/divinopolis/map_dengue_2016",
+  // },
+  // {
+  //   title: "Divinopolis Dengue (2017)",
+  //   description:
+  //     "Clique e segure no mapa para escanear casos e estatísticas sobre a dengue em um raio de 1KM",
+  //   image: "/map_dengue_2017.png",
+  //   link: "/svelte_maps/divinopolis/map_dengue_2017",
+  // },
 ];

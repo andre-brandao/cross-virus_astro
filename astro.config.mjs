@@ -13,4 +13,7 @@ export default defineConfig({
   //  },
   //  maxDuration: 100,
   //}),
+  server: {
+    host: "0.0.0.0"
+  }
 });

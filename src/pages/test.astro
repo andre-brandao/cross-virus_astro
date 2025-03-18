@@ -1,6 +1,11 @@
 ---
 import Dashboard from "../components/svelte-v2/Dashboard.svelte";
-import { type ArcgisFilter } from "../components/svelte-v2/types";
+import {
+  type ArcgisFilter,
+  type ChartFiltered,
+  type LayerFilter,
+} from "../components/svelte-v2/types";
+import type { SimpleMapParams } from "../components/svelte/types";
 import Layout from "../layouts/Layout.astro";
 let filter_sem_epi: ArcgisFilter[] = Array(10)
   .fill(undefined)
@@ -94,7 +99,15 @@ let graficos = [
   },
 ];
 
-let feature_table = {
+let feature_table: {
+    title: string;
+    fields: {
+      type: string;
+      fieldName: string;
+      label: string;
+      direction?: "asc" | "desc";
+    }[];
+  } = {
   title: "Casos de Dengue",
   fields: [
     {
@@ -169,7 +182,29 @@ let layer_filter = [
   },
 ];
 
-let dash_config = {
+let dash_config: {
+  title: string;
+  map_id: string;
+  scene_id: string;
+  layerName: string;
+  fieldNames: string[];
+  charts: ChartFiltered[];
+  feature_table?: {
+    title: string;
+    fields: {
+      type: string;
+      fieldName: string;
+      label: string;
+      direction?: "asc" | "desc";
+    }[];
+  };
+  layer_filter?: LayerFilter[];
+  // OTHER MAPS DO NOT HAVE CHARTS OR FILTERS SO THEY CAN USE ANY DATASET OR MAP
+  other_maps?: {
+    label: string;
+    config: SimpleMapParams;
+  }[];
+} = {
   title: "Dengue 2024 João Monlevade",
   map_id: "0f9670330f6d4cdda508fd926e59f0c8",
   scene_id: "ffcd919361a342ce85a28f6c48dd02ac",
@@ -191,5 +226,8 @@ let dash_config = {
 ---
 
 <Layout title="Dashboard">
-  <Dashboard client:only dashboard_config={dash_config} />
+  <Dashboard
+    client:only
+    dashboard_config={dash_config}
+  />
 </Layout>

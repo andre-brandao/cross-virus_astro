@@ -5,12 +5,12 @@ import tailwind from "@astrojs/tailwind";
 
 // https://astro.build/config
 export default defineConfig({
-  output: "server",
+  //output: "server",
   integrations: [svelte(), tailwind()],
-  adapter: vercel({
-    webAnalytics: {
-      enabled: true,
-    },
-    maxDuration: 100,
-  }),
+  //adapter: vercel({
+  //  webAnalytics: {
+  //    enabled: true,
+  //  },
+  //  maxDuration: 100,
+  //}),
 });
